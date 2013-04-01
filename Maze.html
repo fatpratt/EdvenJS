@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Canvas Test</title>
+        <script type="text/javascript" src="ImageCanvas.js"></script>
+        <script type="text/javascript" src="MazeGlobals.js"></script>
+        <script type="text/javascript" src="IniFile.js"></script>
+        <script type="text/javascript" src="MapData.js"></script>
+        <script type="text/javascript" src="Maze.js"></script>
+        <script type="text/javascript" src="Background.js"></script>
+		<script type="text/javascript" src="WallHitItem.js"></script>
+    </head>
+    <body>
+        <section>
+            <div>
+                <canvas id="canvas" width="320" height="200">
+                    This text is displayed if your browser does not support HTML5 Canvas.
+                </canvas>
+            </div>
+
+            <script type="text/javascript">
+
+                var canvas;
+                var ctx;
+
+                var maze = null;
+                
+                function circle(x, y, r){
+                    ctx.beginPath();
+                    ctx.arc(x, y, r, 0, Math.PI * 2, true);
+                    ctx.fill();
+                }
+                
+                function rect(x, y, w, h){
+                    ctx.beginPath();
+                    ctx.rect(x, y, w, h);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                }
+                
+                
+                function init() {
+					var canvas = document.getElementById("canvas");
+					var ctx = canvas.getContext("2d");
+
+                    var iniFile = new IniFile("MazeConfig.ini");
+                    iniFile.loadFile(function(statusGood, message) {
+                        if (statusGood) alert('good status');
+                        else alert(message);
+                    });
+
+                    var imageCanvasAlpha = new ImageCanvas(document, "images/Wall1.gif", 64, 64);
+                    imageCanvasAlpha.loadFile(function(statusGood, message) {
+                        if (statusGood) {       // good path
+                            mapData = new MapData();
+                            imageCanvasAlpha.showAlphaData();
+                            maze = new Maze(ctx, mapData, imageCanvasAlpha.imageData);
+                        }
+                        else alert(message);
+                    });
+
+					return setInterval(render, 100);
+                }
+
+                function doKeyDown(evt) {
+                	if (maze == null) return;
+                    switch (evt.keyCode) {
+                        case 38: // Up arrow was pressed
+                        	maze.moveForward();
+                            maze.renderOneFrame();
+                            break;
+                        case 40: // Down arrow was pressed
+                        	maze.moveBackward();
+                            maze.renderOneFrame();
+                            break;
+                        case 37: // Left arrow was pressed
+                        	maze.rotateLeft();
+                            maze.renderOneFrame();
+                            break;
+                        case 39: // Right arrow was pressed
+                        	maze.rotateRight();
+                            maze.renderOneFrame();
+                            break;
+                    }
+                }
+
+                function render(){
+                    if (maze != null) maze.renderOneFrame();
+                }
+
+				init();
+				window.addEventListener('keydown', doKeyDown, true);
+
+
+            </script>
+
+        </section>
+    </body>
+</html>

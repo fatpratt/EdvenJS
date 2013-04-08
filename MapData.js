@@ -1,57 +1,94 @@
-//------------------------------------------------------------------------------
-// Contains the data which defines the walls of the map.  Essentially this map
-// represents an aerial view of the maze showing which blocks are walls and
-// which are open spaces.
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+// Contains the data which defines the walls of the map.  Essentially this map represents an aerial
+// view of the maze showing which blocks are walls and which are open spaces.
+//
+// The routines here that set object state can be time consuming so listener callback notification
+// patterns are used to keep the caller informed.  To create and use a MapData object, you must
+// first call the constructor, then call loadDataFile(), wait for the callback notification, then
+// call loadAssociatedImages() and again wait for the callback notification.
+//----------------------------------------------------------------------------------------------------------------------
 
-// Constructor 
-MapData = function(){};        
-
-MapData.prototype.mapWidth = 8;          // width should always be a power of 2
-MapData.prototype.mapWidthShift = 3;     // this must be in sync with width for easy division    
-MapData.prototype.mapHeight = 8;         // height doesn't have to be a power of 2 
-
-// Here is the map.  The player starts out near the upper left corner.
-// 1 represents walls and 0 represents open spaces.  Change this
-// array and corresponding static members above to alter the maze's design.
-// Note this is actually a single dimensional array, but can be
-// thought of as a two dimensional array as represented here.
-
-MapData.prototype.mapData = ['1','1','1','1','1','1','1','1',
-                             '1','0','0','0','0','0','0','1',
-							 '1','0','0','0','0','0','0','1',
-							 '1','0','0','0','0','1','1','1',
-							 '1','0','0','0','1','1','0','1',
-							 '1','0','0','0','0','0','0','1',
-							 '1','0','0','0','0','0','0','1',
-							 '1','1','1','1','1','1','1','1'];
-
-
-//------------- getters and setters -------------
-
-/***
-MapData.prototype.getMapHeight = function() {
-	return this.mapHeight;
-};
-
-MapData.prototype.getMapWidth = function() {
-	return this.mapWidth;
-};
-
-MapData.prototype.getMapWidthShift = function() {
-	return this.mapWidthShift;
-};
-***/
+// Namespace: MapData
+if (MapData == null || typeof(MapData) != "object") {var MapData = new Object();}
 
 //------------------------------------------------------------------------------
-// returns true if the specified map item is a wall
+// Constructor
+//------------------------------------------------------------------------------
+MapData = function(document){
+    this.document = document;
+
+    // initialize to default values for demo purposes
+    this.mapWidth = 8;          // width should always be a power of 2
+    this.mapWidthShift = 3;     // this must be in sync with width for easy division
+    this.mapHeight = 8;         // height doesn't have to be a power of 2
+    this.numWallImgs = 0;       // number of different wall images
+    this.wallCanvasImgs = {};   // associative array of wall images
+                                // ... think of this as a map of images indexed by base36 number
+
+    // Here is the arial view or map of the maze with initial values.
+    // 1 represents walls and 0 represents open spaces.
+    // These values change as data is read in from the WallData.txt file.
+    this.mapData = ['1','1','1','1','1','1','1','1',
+                    '1','0','0','0','0','0','0','1',
+                    '1','0','0','0','0','0','0','1',
+                    '1','0','0','0','0','1','1','1',
+                    '1','0','0','0','1','1','0','1',
+                    '1','0','0','0','0','0','0','1',
+                    '1','0','0','0','0','0','0','1',
+                    '1','1','1','1','1','1','1','1'];
+};
+
+MapData.prototype.MAP_DATA_FILE = "WallData.txt";
+
+//----------------------------------------------------------------------------------------------------------------------
+// Loads and parses the MapData file.
+//   callBackFunction - Function to call when done loading.
+//----------------------------------------------------------------------------------------------------------------------
+MapData.prototype.loadDataFile = function(callBackFunction) {
+    var callBackPresent = (typeof(callBackFunction) != "undefined");
+    var xmlHttp = this.createXMLHttpRequest();
+    var ajaxCall = this.MAP_DATA_FILE;
+    var that = this;
+    xmlHttp.onreadystatechange = function() {
+        if (xmlHttp.readyState >= 4) {  // ready state 4 is 'Complete'
+            if (xmlHttp.status == 200) {
+                var rawText = xmlHttp.responseText;
+                MapData.parseMapData(that, rawText);
+                if (callBackPresent) callBackFunction(true);     // tell caller we are all done loading and all is positive
+            }
+            if (xmlHttp.status == 404) {
+                // tell caller we are all done, but we failed to load due to file not found
+                if (callBackPresent) callBackFunction(false, "File not found: " + this.MAP_DATA_FILE);
+            }
+        }
+    };
+    xmlHttp.open('GET', ajaxCall);
+    xmlHttp.send(null);
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Creates and returns an ajax xhr object.
+//----------------------------------------------------------------------------------------------------------------------
+MapData.prototype.createXMLHttpRequest = function() {
+    var xmlHttp = null;
+    if (window.ActiveXObject) {
+        xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    else if (window.XMLHttpRequest) {
+        xmlHttp = new XMLHttpRequest();
+    }
+    return xmlHttp;
+};
+
+//------------------------------------------------------------------------------
+// Returns true if the specified map item is a wall
 //------------------------------------------------------------------------------
 MapData.prototype.isWall = function(mapPos) {
 	return(!(this.mapData[mapPos] == '0'));
 };
 
 //------------------------------------------------------------------------------
-// returns the value at the specified position
+// Returns the value at the specified position
 //------------------------------------------------------------------------------
 MapData.prototype.getValue = function(mapPos) {
 	if (mapPos < 0 || mapPos >= this.mapHeight << this.mapWidthShift) return('0');
@@ -59,9 +96,146 @@ MapData.prototype.getValue = function(mapPos) {
 };
 
 //------------------------------------------------------------------------------
-// takes x, y coordinates and converts them to a position in the one
+// Takes x, y coordinates and converts them to a position in the one
 // dimensional array representing the aerial view of the maze map
 //------------------------------------------------------------------------------
 MapData.prototype.convertPointToMapPos = function(x, y) {
 	return ((y << this.mapWidthShift) + x);    // shifting makes this go faster
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+// Parses the data from the MapData file
+//----------------------------------------------------------------------------------------------------------------------
+MapData.parseMapData = function(that, data) {
+    var lineNum = 0;
+    that.mapWidth = -1;    // denotes first time through loop
+    var completeFile = "";
+
+    var lines = data.split(/\r\n|\r|\n/);
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (line == null || line.length == 0) continue;
+        var cleanLine = line.replace(/(\/\*([\s\S]*?)\*\/)|(\/\/(.*)$)/g, '');  // clean out double slash comments on side
+        if (cleanLine.length == 0) continue;
+        lineNum++;
+        if (that.mapWidth == -1) {              // set Width/WidthShift fields the first time only
+            that.mapWidth = cleanLine.length;   // first line dictates the size of all lines in file
+            if (MapData.isLineLengthGood(that.mapWidth)) {
+                that.mapWidthShift = MathUtils.logarithmBaseTwo(that.mapWidth);
+            } else {
+                that.mapWidth = -1;     // flag indicates something is wrong
+                break;
+            }
+        } else {
+            if (cleanLine.length != that.mapWidth) {
+                // log error ... inconsistent line width
+                break;
+            }
+        }
+        cleanLine = cleanLine.toLowerCase();
+        completeFile += cleanLine;
+    }
+
+    if (that.mapWidth != -1) {      // -1 indicates something is messed  up
+//that.mapWidth = 8;
+//that.mapWidthShift = 3;
+        that.mapHeight = lineNum;
+        that.mapData = completeFile.split('');
+        MapData.setAllTimeHighImageNum(that);
+    }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Sets object property based upon the highest image number encountered in the wall data.
+//----------------------------------------------------------------------------------------------------------------------
+MapData.setAllTimeHighImageNum = function(that) {
+    for (var i = 0; i < that.mapData.length; i++) {
+        var curVal = MathUtils.base36ToBase10(that.mapData[i]);
+        that.numWallImgs = Math.max(curVal, that.numWallImgs);
+    }
+    // log
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Checks to make sure the line width is good - it must be a power of two so we can do the fast div and mult.
+//----------------------------------------------------------------------------------------------------------------------
+MapData.isLineLengthGood = function(width)  {
+    if ((width != 16) && (width != 32) && (width != 64) && (width != 128) && (width != 256)) {
+        // log error
+        return false;
+    }
+    return true;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Loads each and every image associated with the MapData file.
+//   callBackFunction - Function to inform the caller that we are done loading.
+//----------------------------------------------------------------------------------------------------------------------
+MapData.prototype.loadAssociatedImages = function(callBackFunction) {
+    var callBackPresent = (typeof(callBackFunction) != "undefined");
+    var curImageNum = 1;
+    var that = this;
+    var loadImageCanvasFunction = function() {
+
+        var b36 = MathUtils.base10ToBase36(curImageNum);
+        var imageCanvas = new ImageCanvas(that.document, "images/Wall" + b36 + ".gif", 64, 64);
+
+        // this is a loop through recursion and callback
+        // ... once an image is loaded this inline function below is called (as a callback)
+        // ... we then increment and move to the next image through recursion
+        imageCanvas.loadFile(function(statusGood, message) {
+            // todo: -log- if statusGood is false
+
+            that.wallCanvasImgs[b36] = imageCanvas; // save this image to a map of images indexed by base36 number
+            curImageNum++;                          // move on to next image
+            if (curImageNum > that.numWallImgs){
+                if (callBackPresent) callBackFunction(true);    // we are all done ... inform the listener
+            } else {
+                loadImageCanvasFunction();     // recursion continues until all images are encountered
+            }
+        });
+    };
+    loadImageCanvasFunction();      // get the ball rolling
+};
+
+MapData.prototype.getCanvasImage = function(ch) {
+    if (this.wallCanvasImgs.hasOwnProperty(ch)) {
+        return this.wallCanvasImgs[ch];
+    }
+    return null;
+}
+
+ /*****
+ hash tables in javascript
+var h = new Object(); // or just {}
+h['one'] = 1;
+h['two'] = 2;
+h['three'] = 3;
+
+// show the values stored
+for (var k in h) {
+    // use hasOwnProperty to filter out keys from the Object.prototype
+    if (h.hasOwnProperty(k)) {
+        alert('key is: ' + k + ', value is: ' + h[k]);
+    }
+}
+
+for (var k in h) {
+    if (h.hasOwnProperty(k)) {
+        alert('key is: ' + k + ', value is: ' + eval('h.' + k));
+    }
+}
+
+var a = new Array(); // or just []
+a[0] = 0
+a['one'] = 1;
+a['two'] = 2;
+a['three'] = 3;
+
+for (var k in a) {
+    if (a.hasOwnProperty(k)) {
+        alert('key is: ' + k + ', value is: ' + a[k]);
+    }
+}
+alert(a.length);
+****/

@@ -23,12 +23,12 @@ Maze = function(canvasContext, mapData, imageData) {
 
 	this.createTables();
 
-    this.playerX = 80;    // adjust these to move inital player position
-    this.playerY = 224;
+    this.playerX = 130;    // adjust these to move inital player position
+    this.playerY = 130;
     this.playerArc = 0;
 
     // create image as buffer for drawing
-	this.tmpImageData = this.canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
+	this.memPixels = this.canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
 
     this.setPlayerPos();
 };
@@ -77,7 +77,7 @@ Maze.prototype.SLICE_WIDTH = 1;      // width of vertical slice drawn
 Maze.prototype.mapData = null;
 Maze.prototype.imageData = null;
 Maze.prototype.canvasContext = null;  // screen drawing canvas context
-Maze.prototype.tmpImageData = null;   // temp buffer for building image
+Maze.prototype.memPixels = null;   // temp buffer for building image
 
 Maze.prototype.background = null;     // holds background pixels
 
@@ -159,58 +159,13 @@ Maze.prototype.createTables = function() {
 // position with the specified rgb values.
 //------------------------------------------------------------------------------
 Maze.prototype.setPixel = function(x, y, r, g, b) {
-	if (this.tmpImageData == null) return;
-    index = (x + y * this.tmpImageData.width) * 4;
-    this.tmpImageData.data[index + 0] = r;
-    this.tmpImageData.data[index + 1] = g;
-    this.tmpImageData.data[index + 2] = b;
-    this.tmpImageData.data[index + 3] = 0xff;  // 0xff is opaque
+	if (this.memPixels == null) return;
+    index = (x + y * this.memPixels.width) * 4;
+    this.memPixels.data[index + 0] = r;
+    this.memPixels.data[index + 1] = g;
+    this.memPixels.data[index + 2] = b;
+    this.memPixels.data[index + 3] = 0xff;  // 0xff is opaque
 };
-
-//------------------------------------------------------------------------------
-// Draws a gradient background.  TODO: see about creating the background on an
-// offscreen image map, and copying the background to the image buffer through a
-// putImageData() call, instead of walking through these loops for each paint
-// cycle.
-//------------------------------------------------------------------------------
-/***
-Maze.prototype.drawBackground = function() {
-    var red = 40;       // make adjustments here to change hues of sky
-    var green = 125;
-    var blue = 225;
-	var redStep = 2;
-	var greenStep = 0;
-	var blueStep = 0;
-
-	// paint sky
-	var halfHeight = MazeGlobals.PROJECTIONPLANEHEIGHT >> 1;  // ( >> 1 is dividing by 2)
-	for (row = 0; row < halfHeight; row++) {
-        for (col = 0; col < MazeGlobals.PROJECTIONPLANEWIDTH; col++) {
-        	this.setPixel(col, row, red, green, blue);
-		}
-		red += redStep; red = red > 255 ? 255 : red; red = red < 0 ? 0 : red;
-		green += greenStep; green = green > 255 ? 255 : green; green = green < 0 ? 0 : green;
-		blue += blueStep; blue = blue > 255 ? 255 : blue; blue = blue < 0 ? 0 : blue;
-    }
-
-	red = 100;       // make adjustments here to change color of ground
-	green = 80;
-	blue = 40;
-	redStep = 1;
-	greenStep = 1;
-	blueStep = 1;
-
-	// paint ground
-	for (row = halfHeight; row < MazeGlobals.PROJECTIONPLANEHEIGHT; row++) {
-		for (col = 0; col < MazeGlobals.PROJECTIONPLANEWIDTH; col++) {
-			this.setPixel(col, row, red, green, blue);
-		}
-		red += redStep; red = red > 255 ? 255 : red; red = red < 0 ? 0 : red;
-		green += greenStep; green = green > 255 ? 255 : green; green = green < 0 ? 0 : green;
-		blue += blueStep; blue = blue > 255 ? 255 : blue; blue = blue < 0 ? 0 : blue;
-	}
-};
-****/
 
 //------------------------------------------------------------------------------
 // Casts one ray of specified angle looking at all possible intersections with
@@ -223,6 +178,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 	var ay = 0;
 	var ax = 0.0;
+	var hitSide = WallHitItem.prototype.BOTTOM_SIDE_HIT;
 
 	// STEP ONE -- (the hardest one) find the coord of where the first horiz wall is hit
 
@@ -244,6 +200,9 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 	// else, the ray is facing up
 	else {
+	    // if we do hit, it will be the top of the cube
+	    hitSide = WallHitItem.prototype.TOP_SIDE_HIT;
+
 		// ay = (py/64) * (64)
 		// this is simply looking at the previous horizontal line just prior to the player
 		ay = (this.playerY >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT;
@@ -318,6 +277,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 
 	var ax = 0;
 	var ay = 0.0;
+	var hitSide = WallHitItem.prototype.RIGHT_SIDE_HIT;
 
 	if (castArc < this.ANGLE90 || castArc > this.ANGLE270) {
 		ax = ((this.playerX >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT) + MazeGlobals.TILE_SIZE;
@@ -325,6 +285,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 		distToNextVerticalGrid = MazeGlobals.TILE_SIZE;
 	}
 	else {
+	    hitSide = WallHitItem.prototype.LEFT_SIDE_HIT;
 		ax = (this.playerX >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT;
 		ay = this.playerY + ((ax - this.playerX) * this.tanTable[castArc]);
 		distToNextVerticalGrid = -MazeGlobals.TILE_SIZE;
@@ -366,7 +327,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 // 60 degrees of the players field of vision.
 //------------------------------------------------------------------------------
 Maze.prototype.renderOneFrame = function() {
-   this.background.copyBackgroundTo(this.tmpImageData);
+   this.background.copyBackgroundTo(this.memPixels);
 
    // field of view is 60 degree with player's direction (angle) in the middle
    // we will trace the rays starting from the leftmost ray
@@ -431,21 +392,31 @@ Maze.prototype.drawWallSlice = function(castColumn, itemHit) {
             leftMostOfSlice = MazeGlobals.TILE_SIZE - leftMostOfSlice;
         }
 
-        //this.drawVertLineOLD(castColumn, topOfWall, projectedWallHeight, itemHit);
-		this.drawVertLine(castColumn, topOfWall, projectedWallHeight, this.imageData, MazeGlobals.TILE_SIZE, leftMostOfSlice);
+        // grab the appropriate image from hashtable
+        var ch = this.mapData.mapData[itemHit.mapPos]
+        if (ch == '0') return;
+        var imageCanvas = this.mapData.getCanvasImage(ch);
+        if (imageCanvas == null) return;
+
+		//this.drawVertSliceOfImage(castColumn, topOfWall, projectedWallHeight, this.imageData, MazeGlobals.TILE_SIZE, leftMostOfSlice);
+		this.drawVertSliceOfImage(castColumn, topOfWall, projectedWallHeight, imageCanvas.imageData, MazeGlobals.TILE_SIZE, leftMostOfSlice);
 	}
 };
 
-Maze.prototype.drawVertLine = function(col, topOfLine, lineHeight, imageData, srcImageHeight, srcColImage) {
+//------------------------------------------------------------------------------
+// Draws a vertical slice of image on the specified column scaling appropriately.
+//------------------------------------------------------------------------------
+Maze.prototype.drawVertSliceOfImage = function(col, topOfLine, lineHeight, imageData, srcImageHeight, srcColImage) {
     var ratio = srcImageHeight / lineHeight;  // ratio between source and dest
     var yImage = 0;
     var botOfLine = topOfLine + lineHeight;
+    var srcImageWidthTimesHeight = srcImageHeight * srcImageHeight;   // assumes height and width are equal
     for (var y = topOfLine; y < botOfLine; y++) {
         yImage++;
         var pixelPos = (y * MazeGlobals.PROJECTIONPLANEWIDTH) + col;
-        if (pixelPos >= 0 && pixelPos < (MazeGlobals.PROJECTIONPLANEWIDTH * MazeGlobals.PROJECTIONPLANEHEIGHT)) {
+        if (pixelPos >= 0 && pixelPos < (MazeGlobals.PROJECTIONPLANE_WIDTHTIMESHEIGHT)) {
             var srcPixelPos = (~~((ratio) * yImage) * srcImageHeight) + srcColImage;
-            if (srcPixelPos >= 0 && srcPixelPos < srcImageHeight * srcImageHeight) {   // assumes height and width are equal
+            if (srcPixelPos >= 0 && srcPixelPos < srcImageWidthTimesHeight) {
                 var srcIndex = srcPixelPos * 4;
                 if (imageData.data[srcIndex + 3] != 0) {     // check to make sure pixel is not transparent
                     this.setPixel(col, y, imageData.data[srcIndex], imageData.data[srcIndex + 1], imageData.data[srcIndex + 2]);
@@ -455,48 +426,11 @@ Maze.prototype.drawVertLine = function(col, topOfLine, lineHeight, imageData, sr
     }
 };
 
-/****
-    private void drawVertSliceOfImage(int col, int topOfLine, int lineHeight, int[] srcImagePixels, int srcImageHeight, int srcColImage) {
-
-        float ratio = (float) srcImageHeight / (float) lineHeight;  // ratio between source and dest
-
-        int yImage = 0;
-        for (int y = topOfLine; y < (topOfLine + lineHeight); y++) {
-            yImage++;
-            int pixelPos = (y * MazeGlobals.PROJECTIONPLANEWIDTH) + col;
-            if (pixelPos >= 0 && pixelPos < MazeGlobals.PROJECTIONPLANEWIDTH * MazeGlobals.PROJECTIONPLANEHEIGHT) {
-                int srcPixelPos = ((int) ((ratio) * yImage) * srcImageHeight) + srcColImage;
-                if (srcPixelPos >= 0 && srcPixelPos < srcImageHeight * srcImageHeight) {   // assumes height and width are equal
-                    if (!isPixelTransparent(srcImagePixels[srcPixelPos]))
-                        fMemPixels[pixelPos] = srcImagePixels[srcPixelPos];
-                }
-            }
-        }
-    }
-****/
-
-//------------------------------------------------------------------------------
-// Draws one vertical line on main memory pixels from topOfLine to lineHeight.
-//------------------------------------------------------------------------------
-Maze.prototype.drawVertLineOLD = function(col, topOfLine, lineHeight, itemHit) {
-	var y = topOfLine;
-	var yLen = topOfLine + lineHeight;
-	for (yImage = 0; y < yLen; y++) {
-		var pixelPos = (y * MazeGlobals.PROJECTIONPLANEWIDTH) + col;
-		if (pixelPos >= 0 && pixelPos < MazeGlobals.PROJECTIONPLANEWIDTH * MazeGlobals.PROJECTIONPLANEHEIGHT) {
-			if (itemHit.isHorizHit())
-				this.setPixel(col, y, 0x88, 0x88, 0x88);  // dark gray
-			else
-				this.setPixel(col, y, 0xbb, 0xbb, 0xbb);  // light gray
-		}
-	}
-};
-
 //------------------------------------------------------------------------------
 // Renders the image by pushing the image data pixels to the graphics context.
 //------------------------------------------------------------------------------
 Maze.prototype.paint = function() {
-	this.canvasContext.putImageData(this.tmpImageData, 0, 0);
+	this.canvasContext.putImageData(this.memPixels, 0, 0);
 };
 
 //------------------------------------------------------------------------------

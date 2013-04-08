@@ -41,16 +41,6 @@ WallHitItem.prototype.castArc = 0;
 
 // -------- setters and getters ------------
 
-/***
-WallHitItem.prototype.isOffTheMap = function() {
-	return this.offTheMap;
-};
-
-WallHitItem.prototype.setOffTheMap = function(offTheMap) {
-	return this.offTheMap = offTheMap;
-};
-*****/
-
 WallHitItem.prototype.isHorizHit = function() {
 	return (this.hitType == this.HORIZ_HIT);
 };
@@ -59,42 +49,8 @@ WallHitItem.prototype.isVertHit = function() {
 	return (this.hitType == this.VERT_HIT);
 };
 
-/***
-WallHitItem.prototype.setMapPos = function(mapPos) {
-	this.mapPos = mapPos;
-};
-
-WallHitItem.prototype.getMapPos = function() {
-	return this.mapPos;
-};
-
-WallHitItem.prototype.getDistToItem = function() {
-	return this.distToItem;
-};
-
-WallHitItem.prototype.setDistToItem = function(distToItem) {
-	this.distToItem = distToItem;
-};
-
-WallHitItem.prototype.getIntersection = function() {
-	return this.intersection;
-};
-
-WallHitItem.prototype.setIntersection = function(intersection) {
-	this.intersection = intersection;
-};
-
-WallHitItem.prototype.getGridLine = function() {
-	return this.gridLine;
-};
-
-WallHitItem.prototype.setGridLine = function(gridLine) {
-	this.gridLine = gridLine;
-};
-****/
-
 //------------------------------------------------------------------------------
-//Returns which of the two WallItems is the closest.
+// Returns which of the two WallItems is the closest.
 //------------------------------------------------------------------------------
 function determineClosestHit(horizItemHit, vertItemHit) {
 	if (vertItemHit.offTheMap && horizItemHit.offTheMap) return horizItemHit;
@@ -102,6 +58,23 @@ function determineClosestHit(horizItemHit, vertItemHit) {
 	if (horizItemHit.offTheMap) return vertItemHit;
 	if (horizItemHit.distToItem <  vertItemHit.distToItem) return horizItemHit;
 	else return vertItemHit;
+};
+
+//------------------------------------------------------------------------------
+// Converts the maze coordinates to a position in the small aerial map and
+// sets data members accordingly.  Generally you should call calcAndSetOffTheMap
+// after calling this.
+//------------------------------------------------------------------------------
+WallHitItem.prototype.calcAndSetMapPos = function(mapData) {
+	if (this.hitType == this.HORIZ_HIT) { // round down to x position of intersection on small grid
+	    this.xGridIndex = ~~(this.intersection / MazeGlobals.TILE_SIZE);
+	    this.yGridIndex = (this.gridLine >> MazeGlobals.TILE_SIZE_SHIFT);
+	} else {
+		this.xGridIndex = (this.gridLine >> MazeGlobals.TILE_SIZE_SHIFT);
+		this.yGridIndex = ~~(this.intersection / MazeGlobals.TILE_SIZE);
+	}
+    this.mapPos = mapData.convertPointToMapPos(this.xGridIndex, this.yGridIndex);
+    return this.mapPos;
 };
 
 //------------------------------------------------------------------------------
@@ -118,21 +91,3 @@ WallHitItem.prototype.calcAndSetOffTheMap = function(mapData) {
 	}
 	return this.offTheMap;
 };
-
-//------------------------------------------------------------------------------
-//Converts the maze coordinates to a position in the small aerial map and
-//sets data members accordingly.  Generally you should call calcAndSetOffTheMap
-//after calling this.
-//------------------------------------------------------------------------------
-WallHitItem.prototype.calcAndSetMapPos = function(mapData) {
-	if (this.hitType == this.HORIZ_HIT) { // round down to x position of intersection on small grid
-	    this.xGridIndex = ~~(this.intersection / 64);
-	    this.yGridIndex = (this.gridLine >> 6);
-	} else {
-		this.xGridIndex = (this.gridLine >> 6);
-		this.yGridIndex = ~~(this.intersection / 64);
-	}
-    this.mapPos = mapData.convertPointToMapPos(this.xGridIndex, this.yGridIndex);
-    return this.mapPos;
-};
-

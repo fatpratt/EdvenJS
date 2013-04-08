@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <title>Canvas Test</title>
+        <script type="text/javascript" src="MathUtils.js"></script>
         <script type="text/javascript" src="ImageCanvas.js"></script>
         <script type="text/javascript" src="MazeGlobals.js"></script>
         <script type="text/javascript" src="IniFile.js"></script>
@@ -47,15 +48,23 @@
 
                     var iniFile = new IniFile("MazeConfig.ini");
                     iniFile.loadFile(function(statusGood, message) {
-                        if (statusGood) alert('good status');
-                        else alert(message);
+//                        if (statusGood) alert('good status');
+//                        else alert(message);
                     });
 
                     var imageCanvasAlpha = new ImageCanvas(document, "images/Wall1.gif", 64, 64);
                     imageCanvasAlpha.loadFile(function(statusGood, message) {
                         if (statusGood) {       // good path
-                            mapData = new MapData();
-                            imageCanvasAlpha.showAlphaData();
+//                            imageCanvasAlpha.showAlphaData();       // show success
+
+                            mapData = new MapData(document);
+                            mapData.loadDataFile(function(statusGood, message) {
+//                                alert('okay loaded data file: ' + statusGood + ' ' + message);
+                                mapData.loadAssociatedImages(function(statusGood, message) {
+                                    alert('okay loaded associated image files: ' + statusGood + ' ' + message);
+                                });
+                            });
+
                             maze = new Maze(ctx, mapData, imageCanvasAlpha.imageData);
                         }
                         else alert(message);

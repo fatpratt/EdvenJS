@@ -9,7 +9,9 @@ var MazeGlobals = (function() {
         PROJECTIONPLANE_WIDTHTIMESHEIGHT: 64000,
 
         TILE_SIZE: 64,
-        TILE_SIZE_SHIFT: 6   // used for bitwise shifting to simulate div and mult by TILE_SIZE
+        TILE_SIZE_SHIFT: 6,   // used for bitwise shifting to simulate div and mult by TILE_SIZE
+
+        MAZE_DIR: "MazeDir"
     }
 }());
 

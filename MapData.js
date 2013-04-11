@@ -14,8 +14,9 @@ if (MapData == null || typeof(MapData) != "object") {var MapData = new Object();
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-MapData = function(document){
+MapData = function(document, mazeId){
     this.document = document;
+    this.mazeId = mazeId;
 
     // initialize to default values for demo purposes
     this.mapWidth = 8;          // width should always be a power of 2
@@ -27,7 +28,7 @@ MapData = function(document){
 
     // Here is the arial view or map of the maze with initial values.
     // 1 represents walls and 0 represents open spaces.
-    // These values change as data is read in from the WallData.txt file.
+    // These are default values which change as data is read in from the WallData.txt file.
     this.mapData = ['1','1','1','1','1','1','1','1',
                     '1','0','0','0','0','0','0','1',
                     '1','0','0','0','0','0','0','1',
@@ -47,7 +48,7 @@ MapData.prototype.MAP_DATA_FILE = "WallData.txt";
 MapData.prototype.loadDataFile = function(callBackFunction) {
     var callBackPresent = (typeof(callBackFunction) != "undefined");
     var xmlHttp = this.createXMLHttpRequest();
-    var ajaxCall = this.MAP_DATA_FILE;
+    var ajaxCall = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.MAP_DATA_FILE;
     var that = this;
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState >= 4) {  // ready state 4 is 'Complete'
@@ -137,8 +138,6 @@ MapData.parseMapData = function(that, data) {
     }
 
     if (that.mapWidth != -1) {      // -1 indicates something is messed  up
-//that.mapWidth = 8;
-//that.mapWidthShift = 3;
         that.mapHeight = lineNum;
         that.mapData = completeFile.split('');
         MapData.setAllTimeHighImageNum(that);
@@ -178,7 +177,8 @@ MapData.prototype.loadAssociatedImages = function(callBackFunction) {
     var loadImageCanvasFunction = function() {
 
         var b36 = MathUtils.base10ToBase36(curImageNum);
-        var imageCanvas = new ImageCanvas(that.document, "images/Wall" + b36 + ".gif", 64, 64);
+        //var imageCanvas = new ImageCanvas(that.document, MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/Wall" + b36 + ".gif", 64, 64);
+        var imageCanvas = new ImageCanvas(that.document, that.mazeId, "Wall" + b36 + ".gif", 64, 64);
 
         // this is a loop through recursion and callback
         // ... once an image is loaded this inline function below is called (as a callback)
@@ -198,6 +198,9 @@ MapData.prototype.loadAssociatedImages = function(callBackFunction) {
     loadImageCanvasFunction();      // get the ball rolling
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+// Returns the ImageCanvas associated with the specified ch.
+//----------------------------------------------------------------------------------------------------------------------
 MapData.prototype.getCanvasImage = function(ch) {
     if (this.wallCanvasImgs.hasOwnProperty(ch)) {
         return this.wallCanvasImgs[ch];
@@ -205,37 +208,3 @@ MapData.prototype.getCanvasImage = function(ch) {
     return null;
 }
 
- /*****
- hash tables in javascript
-var h = new Object(); // or just {}
-h['one'] = 1;
-h['two'] = 2;
-h['three'] = 3;
-
-// show the values stored
-for (var k in h) {
-    // use hasOwnProperty to filter out keys from the Object.prototype
-    if (h.hasOwnProperty(k)) {
-        alert('key is: ' + k + ', value is: ' + h[k]);
-    }
-}
-
-for (var k in h) {
-    if (h.hasOwnProperty(k)) {
-        alert('key is: ' + k + ', value is: ' + eval('h.' + k));
-    }
-}
-
-var a = new Array(); // or just []
-a[0] = 0
-a['one'] = 1;
-a['two'] = 2;
-a['three'] = 3;
-
-for (var k in a) {
-    if (a.hasOwnProperty(k)) {
-        alert('key is: ' + k + ', value is: ' + a[k]);
-    }
-}
-alert(a.length);
-****/

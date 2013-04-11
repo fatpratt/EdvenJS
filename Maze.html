@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8" />
         <title>Canvas Test</title>
+        <script type="text/javascript" src="MazeGlobals.js"></script>
         <script type="text/javascript" src="MathUtils.js"></script>
         <script type="text/javascript" src="ImageCanvas.js"></script>
-        <script type="text/javascript" src="MazeGlobals.js"></script>
         <script type="text/javascript" src="IniFile.js"></script>
         <script type="text/javascript" src="MapData.js"></script>
         <script type="text/javascript" src="Maze.js"></script>
@@ -14,6 +14,7 @@
     </head>
     <body>
         <section>
+            <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/></span>
             <div>
                 <canvas id="canvas" width="320" height="200">
                     This text is displayed if your browser does not support HTML5 Canvas.
@@ -43,34 +44,28 @@
                 
                 
                 function init() {
+                    var mazeIdTextFld = document.getElementById("mazeId");
+                    var mazeId = mazeIdTextFld.value;
+
 					var canvas = document.getElementById("canvas");
 					var ctx = canvas.getContext("2d");
 
-                    var iniFile = new IniFile("MazeConfig.ini");
+                    var iniFile = new IniFile(mazeId, "MazeConfig.ini");
                     iniFile.loadFile(function(statusGood, message) {
 //                        if (statusGood) alert('good status');
 //                        else alert(message);
                     });
 
-                    var imageCanvasAlpha = new ImageCanvas(document, "images/Wall1.gif", 64, 64);
-                    imageCanvasAlpha.loadFile(function(statusGood, message) {
-                        if (statusGood) {       // good path
-//                            imageCanvasAlpha.showAlphaData();       // show success
 
-                            mapData = new MapData(document);
-                            mapData.loadDataFile(function(statusGood, message) {
-//                                alert('okay loaded data file: ' + statusGood + ' ' + message);
-                                mapData.loadAssociatedImages(function(statusGood, message) {
-                                    alert('okay loaded associated image files: ' + statusGood + ' ' + message);
-                                });
-                            });
-
-                            maze = new Maze(ctx, mapData, imageCanvasAlpha.imageData);
-                        }
-                        else alert(message);
+                    var mapData = new MapData(document, mazeId);
+                    mapData.loadDataFile(function(statusGood, message) {
+                        alert('okay loaded data file: ' + statusGood + ' ' + message);
+                        mapData.loadAssociatedImages(function(statusGood, message) {
+                            alert('okay loaded associated image files: ' + statusGood + ' ' + message);
+                        });
                     });
-
-					return setInterval(render, 100);
+                    maze = new Maze(ctx, mapData);
+                    return setInterval(render, 100);
                 }
 
                 function doKeyDown(evt) {
@@ -95,16 +90,19 @@
                     }
                 }
 
-                function render(){
+                function render() {
                     if (maze != null) maze.renderOneFrame();
                 }
 
 				init();
 				window.addEventListener('keydown', doKeyDown, true);
-
-
             </script>
+
+            http://stackoverflow.com/questions/12273451/how-to-fix-delay-in-javascript-keydown
 
         </section>
     </body>
 </html>
+
+
+

@@ -9,8 +9,9 @@ if (IniFile == null || typeof(IniFile) != "object") {var IniFile = new Object();
 //----------------------------------------------------------------------------------------------------------------------
 // Constructor
 //----------------------------------------------------------------------------------------------------------------------
-IniFile = function(fileName) {
+IniFile = function(mazeId, fileName) {
     this.iniObj = null;             // ini recreation as a js object
+    this.mazeId = mazeId;           // dir where file is found
     this.fileName = fileName;       // ini filename
 };
 
@@ -21,7 +22,7 @@ IniFile = function(fileName) {
 IniFile.prototype.loadFile = function(callBackFunction) {
     var callBackPresent = (typeof(callBackFunction) != "undefined");
     var xmlHttp = this.createXMLHttpRequest();
-    var ajaxCall = this.fileName;
+    var ajaxCall = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName;
     var that = this;
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState >= 4) {  // ready state 4 is 'Complete'
@@ -32,7 +33,7 @@ IniFile.prototype.loadFile = function(callBackFunction) {
             }
             if (xmlHttp.status == 404) {
                 // tell caller we are all done, but we failed to load due to file not found
-                if (callBackPresent) callBackFunction(false, "File not found: " + that.fileName);
+                if (callBackPresent) callBackFunction(false, "File not found: " + MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/" + that.fileName);
             }
         }
     };

@@ -14,10 +14,9 @@
 // tables in memory, sets up the player's initial position and prepares memory
 // image for drawing.
 //------------------------------------------------------------------------------
-Maze = function(canvasContext, mapData, imageData) {
+Maze = function(canvasContext, mapData) {
 	this.canvasContext = canvasContext;
 	this.mapData = mapData;
-	this.imageData = imageData;
 
 	this.background = new Background(canvasContext);
 
@@ -75,7 +74,6 @@ Maze.prototype.playerYDir = 0.0;     // always eqal to sinTable[playerArc];
 Maze.prototype.SLICE_WIDTH = 1;      // width of vertical slice drawn
 
 Maze.prototype.mapData = null;
-Maze.prototype.imageData = null;
 Maze.prototype.canvasContext = null;  // screen drawing canvas context
 Maze.prototype.memPixels = null;   // temp buffer for building image
 
@@ -398,7 +396,6 @@ Maze.prototype.drawWallSlice = function(castColumn, itemHit) {
         var imageCanvas = this.mapData.getCanvasImage(ch);
         if (imageCanvas == null) return;
 
-		//this.drawVertSliceOfImage(castColumn, topOfWall, projectedWallHeight, this.imageData, MazeGlobals.TILE_SIZE, leftMostOfSlice);
 		this.drawVertSliceOfImage(castColumn, topOfWall, projectedWallHeight, imageCanvas.imageData, MazeGlobals.TILE_SIZE, leftMostOfSlice);
 	}
 };

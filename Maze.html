@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <title>Canvas Test</title>
         <script type="text/javascript" src="MazeGlobals.js"></script>
+        <script type="text/javascript" src="TextAreaBox.js"></script>
         <script type="text/javascript" src="MathUtils.js"></script>
         <script type="text/javascript" src="ImageCanvas.js"></script>
         <script type="text/javascript" src="IniFile.js"></script>
@@ -16,33 +17,15 @@
         <section>
             <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/></span>
             <div>
-                <canvas id="canvas" width="320" height="200">
+                <canvas id="canvas" width="640" height="200">
                     This text is displayed if your browser does not support HTML5 Canvas.
                 </canvas>
             </div>
 
             <script type="text/javascript">
 
-                var canvas;
-                var ctx;
-
                 var maze = null;
-                
-                function circle(x, y, r){
-                    ctx.beginPath();
-                    ctx.arc(x, y, r, 0, Math.PI * 2, true);
-                    ctx.fill();
-                }
-                
-                function rect(x, y, w, h){
-                    ctx.beginPath();
-                    ctx.rect(x, y, w, h);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                }
-                
-                
+
                 function init() {
                     var mazeIdTextFld = document.getElementById("mazeId");
                     var mazeId = mazeIdTextFld.value;
@@ -50,12 +33,17 @@
 					var canvas = document.getElementById("canvas");
 					var ctx = canvas.getContext("2d");
 
+                    var textAreaBox = new TextAreaBox(ctx, "black", "#aaaaaa",
+                        MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.TEXTBOXWIDTH, MazeGlobals.TEXTBOXHEIGHT);
+                    textAreaBox.setDisplayText("hello hello hello hello asdf hello asdf hello a hello hello hello.");
+                    textAreaBox.render();
+                    textAreaBox.dumpError('hello hello hello hello asdf hello asdf hello a hello hello hello');
+
                     var iniFile = new IniFile(mazeId, "MazeConfig.ini");
                     iniFile.loadFile(function(statusGood, message) {
-//                        if (statusGood) alert('good status');
-//                        else alert(message);
+                        if (statusGood) textAreaBox.dumpText('good status');
+                        else textAreaBox.dumpError('error: ' + message);
                     });
-
 
                     var mapData = new MapData(document, mazeId);
                     mapData.loadDataFile(function(statusGood, message) {

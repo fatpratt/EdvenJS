@@ -23,6 +23,7 @@ IniFile.prototype.loadFile = function(callBackFunction) {
     var callBackPresent = (typeof(callBackFunction) != "undefined");
     var xmlHttp = this.createXMLHttpRequest();
     var ajaxCall = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName;
+    console.log("IniFile.js - Load file: " + ajaxCall);
     var that = this;
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState >= 4) {  // ready state 4 is 'Complete'

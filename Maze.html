@@ -12,10 +12,13 @@
         <script type="text/javascript" src="Maze.js"></script>
         <script type="text/javascript" src="Background.js"></script>
 		<script type="text/javascript" src="WallHitItem.js"></script>
+        <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
+
     </head>
-    <body>
+    <body onload="init()">
         <section>
             <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/></span>
+            <div id="targetCanvasDiv"></div>
             <div>
                 <canvas id="canvas" width="640" height="200">
                     This text is displayed if your browser does not support HTML5 Canvas.
@@ -26,36 +29,103 @@
 
                 var maze = null;
 
+                //--------------------------------------------------------------------------------------------------
+                // Add support for those browsers that don't support "forEach" (such as older internet explorer).
+                //--------------------------------------------------------------------------------------------------
+                (function () {
+                    if (!Array.prototype.forEach) {
+                        Array.prototype.forEach = function(fun /*, thisp*/) {
+                            var len = this.length;
+                            if (typeof fun != "function")
+                                throw new TypeError();
+
+                            var thisp = arguments[1];
+                            for (var i = 0; i < len; i++) {
+                                if (i in this)
+                                        fun.call(thisp, this[i], i, this);
+                            }
+                        };
+                    }
+                }());
+
+                //--------------------------------------------------------------------------------------------------
+                // For those browsers that don't support console.log() define a dummy version to prevent crashes.
+                //--------------------------------------------------------------------------------------------------
+                (function () {
+                    if (typeof console !== "object") {
+                        console = {log: function(){}};
+                    }
+                }());
+
+                //--------------------------------------------------------------------------------------------------
+                // Creates and returns canvas.
+                //--------------------------------------------------------------------------------------------------
+                function createCanvas() {
+                    var targetDiv = document.getElementById("targetCanvasDiv");
+                    var canvas = document.createElement('canvas');
+                    canvas.setAttribute("width",  640);
+                    canvas.setAttribute("height", 200);
+                    targetDiv.appendChild(canvas);
+
+                    // older internet explorer support for canvas... must have excanvas.min.js present and referenced
+                    if (typeof(G_vmlCanvasManager) != 'undefined') {
+                        canvas = G_vmlCanvasManager.initElement(canvas);
+                    }
+                    return canvas;
+                }
+
+                //--------------------------------------------------------------------------------------------------
+                // Main entry point.
+                //--------------------------------------------------------------------------------------------------
                 function init() {
+                    var canvas = createCanvas();
+                    var ctx = canvas.getContext('2d');
+
                     var mazeIdTextFld = document.getElementById("mazeId");
                     var mazeId = mazeIdTextFld.value;
 
-					var canvas = document.getElementById("canvas");
-					var ctx = canvas.getContext("2d");
-
                     var textAreaBox = new TextAreaBox(ctx, "black", "#aaaaaa",
                         MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.TEXTBOXWIDTH, MazeGlobals.TEXTBOXHEIGHT);
-                    textAreaBox.setDisplayText("hello hello hello hello asdf hello asdf hello a hello hello hello.");
-                    textAreaBox.render();
-                    textAreaBox.dumpError('hello hello hello hello asdf hello asdf hello a hello hello hello');
+                    textAreaBox.dumpText('test test test');
+
+                    if (ctx.createImageData == null) {
+                        textAreaBox.dumpError('Please upgrade your browser. Sorry, your browser is out of date for this viewer to function properly.');
+                        return;
+                    }
 
                     var iniFile = new IniFile(mazeId, "MazeConfig.ini");
                     iniFile.loadFile(function(statusGood, message) {
-                        if (statusGood) textAreaBox.dumpText('good status');
-                        else textAreaBox.dumpError('error: ' + message);
+                        if (statusGood) console.log('Maze.html: MazeConfig.ini successfully loaded.');
+                        else {
+                            textAreaBox.dumpError('error: ' + message);
+                            return;
+                        }
                     });
 
-                    var mapData = new MapData(document, mazeId);
+                    var mapData = new MapData(document, mazeId, textAreaBox);
                     mapData.loadDataFile(function(statusGood, message) {
-                        alert('okay loaded data file: ' + statusGood + ' ' + message);
-                        mapData.loadAssociatedImages(function(statusGood, message) {
-                            alert('okay loaded associated image files: ' + statusGood + ' ' + message);
+                        if (statusGood) console.log('Maze.html: Map Data file successfully loaded.');
+                        else {
+                            textAreaBox.dumpError('error unable to load Map Data file: ' + message);
+                            return;
+                        }
+                        mapData.loadAssociatedImages(function(statusGood2, message2) {
+                            if (statusGood2) console.log('Maze.html: successfully loaded associated image files');
+                            else {
+                                textAreaBox.dumpError('error unable to load associated images: ' + message2);
+                                return;
+                            }
                         });
                     });
                     maze = new Maze(ctx, mapData);
+
+                    window.addEventListener('keydown', doKeyDown, true);
                     return setInterval(render, 100);
                 }
 
+                //--------------------------------------------------------------------------------------------------
+                // On key down event.
+                //--------------------------------------------------------------------------------------------------
                 function doKeyDown(evt) {
                 	if (maze == null) return;
                     switch (evt.keyCode) {
@@ -78,12 +148,14 @@
                     }
                 }
 
+                //--------------------------------------------------------------------------------------------------
+                // Render a frame.
+                //--------------------------------------------------------------------------------------------------
                 function render() {
                     if (maze != null) maze.renderOneFrame();
                 }
 
-				init();
-				window.addEventListener('keydown', doKeyDown, true);
+                window.addEventListener('keydown', doKeyDown, true);
             </script>
 
             http://stackoverflow.com/questions/12273451/how-to-fix-delay-in-javascript-keydown

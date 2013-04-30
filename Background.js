@@ -2,10 +2,13 @@
 // Used to define a cache of pixels which define the background image in the view.
 //--------------------------------------------------------------------------------------------------
 
+// Namespace: Background
+if (Background == null || typeof(Background) != "object") {var Background = new Object();}
+
 //--------------------------------------------------------------------------------------------------
 // Constructor
 //--------------------------------------------------------------------------------------------------
-function Background(canvasContext) {
+Background = function(canvasContext) {
     this.memPixels = canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
     this.createGradientBackground();
 };

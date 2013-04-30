@@ -6,7 +6,6 @@
 // Namespace: ImageCanvas
 if (ImageCanvas == null || typeof(ImageCanvas) != "object") {var ImageCanvas = new Object();}
 
-
 //----------------------------------------------------------------------------------------------------------------------
 // Constructor
 //----------------------------------------------------------------------------------------------------------------------
@@ -57,7 +56,7 @@ ImageCanvas.prototype.loadFile = function(callBackFunction) {
                 that.imageData = that.context.getImageData(0, 0, that.width, that.height);
             }
         } catch (e) {
-            throw new Error("Unable to access image data: " + MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/" + that.fileName);
+            if (callBackPresent) callBackFunction(false, "Unable to access image data: " + MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/" + that.fileName + " error:" + e.message)
         }
         if (callBackPresent) callBackFunction(true);     // tell caller we are all done loading and all is positive
     };
@@ -68,6 +67,7 @@ ImageCanvas.prototype.loadFile = function(callBackFunction) {
         if (callBackPresent) callBackFunction(false, "File not found: " + MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/" + that.fileName);
     };
 
+    console.log("ImageCanvas.js - Load Image: " + MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName);
     this.image.src = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName;
 }
 

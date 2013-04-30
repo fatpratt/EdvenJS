@@ -94,6 +94,7 @@ TextAreaBox.prototype.dumpError = function(textStr) {
     this.clear();
     this.setTextClr(TextAreaBox.prototype.ERROR_TEXT_COLOR);
     this.setDisplayText(textStr);
+    console.log(textStr);       // dump error to console, as well
     this.render();
 };
 

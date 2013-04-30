@@ -14,9 +14,10 @@ if (MapData == null || typeof(MapData) != "object") {var MapData = new Object();
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-MapData = function(document, mazeId){
+MapData = function(document, mazeId, textAreaBox){
     this.document = document;
     this.mazeId = mazeId;
+    this.textAreaBox = textAreaBox;
 
     // initialize to default values for demo purposes
     this.mapWidth = 8;          // width should always be a power of 2
@@ -59,7 +60,7 @@ MapData.prototype.loadDataFile = function(callBackFunction) {
             }
             if (xmlHttp.status == 404) {
                 // tell caller we are all done, but we failed to load due to file not found
-                if (callBackPresent) callBackFunction(false, "File not found: " + this.MAP_DATA_FILE);
+                if (callBackPresent) callBackFunction(false, "File not found: " + that.MAP_DATA_FILE);
             }
         }
     };
@@ -129,7 +130,9 @@ MapData.parseMapData = function(that, data) {
             }
         } else {
             if (cleanLine.length != that.mapWidth) {
-                // log error ... inconsistent line width
+                var errStr = "Line # " + lineNum + " in file '" + that.MAP_DATA_FILE + "' is inconsistent with the first line of the file. ";
+                errStr += "Each line in the file must be the exact same length.";
+                that.textAreaBox.dumpError(errStr);
                 break;
             }
         }
@@ -152,7 +155,7 @@ MapData.setAllTimeHighImageNum = function(that) {
         var curVal = MathUtils.base36ToBase10(that.mapData[i]);
         that.numWallImgs = Math.max(curVal, that.numWallImgs);
     }
-    // log
+    console.log('MapData.js: number of wall images expected is: ' + that.numWallImgs);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -160,7 +163,9 @@ MapData.setAllTimeHighImageNum = function(that) {
 //----------------------------------------------------------------------------------------------------------------------
 MapData.isLineLengthGood = function(width)  {
     if ((width != 16) && (width != 32) && (width != 64) && (width != 128) && (width != 256)) {
-        // log error
+        var errStr = "The length of the first line in file '" + that.MAP_DATA_FILE + "' is " + width + ".";
+        errStr += "Line length must be 16, 32, 64, 128, or 256.";
+        that.textAreaBox.dumpError(errStr);
         return false;
     }
     return true;
@@ -184,7 +189,7 @@ MapData.prototype.loadAssociatedImages = function(callBackFunction) {
         // ... once an image is loaded this inline function below is called (as a callback)
         // ... we then increment and move to the next image through recursion
         imageCanvas.loadFile(function(statusGood, message) {
-            // todo: -log- if statusGood is false
+            if (statusGood === false) console.log(message);
 
             that.wallCanvasImgs[b36] = imageCanvas; // save this image to a map of images indexed by base36 number
             curImageNum++;                          // move on to next image

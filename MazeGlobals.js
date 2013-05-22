@@ -3,6 +3,7 @@
 //--------------------------------------------------------------------------------------------------
 
 var MazeGlobals = (function() {
+    'use strict';
     return {
         PROJECTIONPLANEWIDTH: 320,
         PROJECTIONPLANEHEIGHT: 200,

@@ -12,6 +12,7 @@ if (TextAreaBox == null || typeof(TextAreaBox) != "object") {var TextAreaBox = n
 // Constructor
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox = function(context, backGroundClrStr, textClrStr, leftStartPoint, width, height){
+    'use strict';
     this.context = context;
     this.backGroundClrStr = backGroundClrStr;
     this.textClrStr = textClrStr;
@@ -35,6 +36,7 @@ TextAreaBox.prototype.ERROR_TEXT_COLOR = "red";
 // Clears display text area text.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.clear = function() {
+    'use strict';
     this.context.beginPath();
     this.context.rect(this.leftStartPoint, 0, this.width, this.height);
     this.context.closePath();
@@ -47,6 +49,7 @@ TextAreaBox.prototype.clear = function() {
 // Sets the text color.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.setTextClr = function(textClrStr) {
+    'use strict';
     this.textClrStr = textClrStr;
 }
 
@@ -54,6 +57,7 @@ TextAreaBox.prototype.setTextClr = function(textClrStr) {
 // Sets the display text.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.setDisplayText = function(str) {
+    'use strict';
     this.displayText = str.replace(/(\r)/gm, "");   // removes return carriage
     this.context.font = TextAreaBox.prototype.FONT_STYLE;
     this.context.fillStyle = this.textClrStr;
@@ -64,6 +68,7 @@ TextAreaBox.prototype.setDisplayText = function(str) {
 // Renders the display text.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.render = function() {
+    'use strict';
     this.context.font = TextAreaBox.prototype.FONT_STYLE;
     this.context.fillStyle = this.textClrStr;
 
@@ -81,6 +86,7 @@ TextAreaBox.prototype.render = function() {
 // Dumps a bunch of text in using the standard text color.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.dumpText = function(textStr) {
+    'use strict';
     this.clear();
     this.setTextClr(this.origTextClrStr);
     this.setDisplayText(textStr);
@@ -91,6 +97,7 @@ TextAreaBox.prototype.dumpText = function(textStr) {
 // Dumps a bunch of text in using the error color.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.dumpError = function(textStr) {
+    'use strict';
     this.clear();
     this.setTextClr(TextAreaBox.prototype.ERROR_TEXT_COLOR);
     this.setDisplayText(textStr);
@@ -103,6 +110,7 @@ TextAreaBox.prototype.dumpError = function(textStr) {
 // string.
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.wrapLines = function(displayStr, maxDisplayWidth) {
+    'use strict';
     var that = this;
     var out = "";
     var lines = displayStr.split(/\r\n|\r|\n/);

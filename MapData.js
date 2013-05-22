@@ -14,7 +14,8 @@ if (MapData == null || typeof(MapData) != "object") {var MapData = new Object();
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-MapData = function(document, mazeId, textAreaBox){
+MapData = function(document, mazeId, textAreaBox) {
+    'use strict';
     this.document = document;
     this.mazeId = mazeId;
     this.textAreaBox = textAreaBox;
@@ -47,6 +48,7 @@ MapData.prototype.MAP_DATA_FILE = "WallData.txt";
 //   callBackFunction - Function to call when done loading.
 //----------------------------------------------------------------------------------------------------------------------
 MapData.prototype.loadDataFile = function(callBackFunction) {
+    'use strict';
     var callBackPresent = (typeof(callBackFunction) != "undefined");
     var xmlHttp = this.createXMLHttpRequest();
     var ajaxCall = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.MAP_DATA_FILE;
@@ -72,6 +74,7 @@ MapData.prototype.loadDataFile = function(callBackFunction) {
 // Creates and returns an ajax xhr object.
 //----------------------------------------------------------------------------------------------------------------------
 MapData.prototype.createXMLHttpRequest = function() {
+    'use strict';
     var xmlHttp = null;
     if (window.ActiveXObject) {
         xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
@@ -86,6 +89,7 @@ MapData.prototype.createXMLHttpRequest = function() {
 // Returns true if the specified map item is a wall
 //------------------------------------------------------------------------------
 MapData.prototype.isWall = function(mapPos) {
+    'use strict';
 	return(!(this.mapData[mapPos] == '0'));
 };
 
@@ -93,6 +97,7 @@ MapData.prototype.isWall = function(mapPos) {
 // Returns the value at the specified position
 //------------------------------------------------------------------------------
 MapData.prototype.getValue = function(mapPos) {
+    'use strict';
 	if (mapPos < 0 || mapPos >= this.mapHeight << this.mapWidthShift) return('0');
 	else return(this.mapData[mapPos]);
 };
@@ -102,6 +107,7 @@ MapData.prototype.getValue = function(mapPos) {
 // dimensional array representing the aerial view of the maze map
 //------------------------------------------------------------------------------
 MapData.prototype.convertPointToMapPos = function(x, y) {
+    'use strict';
 	return ((y << this.mapWidthShift) + x);    // shifting makes this go faster
 };
 
@@ -109,6 +115,7 @@ MapData.prototype.convertPointToMapPos = function(x, y) {
 // Parses the data from the MapData file
 //----------------------------------------------------------------------------------------------------------------------
 MapData.parseMapData = function(that, data) {
+    'use strict';
     var lineNum = 0;
     that.mapWidth = -1;    // denotes first time through loop
     var completeFile = "";
@@ -151,6 +158,7 @@ MapData.parseMapData = function(that, data) {
 // Sets object property based upon the highest image number encountered in the wall data.
 //----------------------------------------------------------------------------------------------------------------------
 MapData.setAllTimeHighImageNum = function(that) {
+    'use strict';
     for (var i = 0; i < that.mapData.length; i++) {
         var curVal = MathUtils.base36ToBase10(that.mapData[i]);
         that.numWallImgs = Math.max(curVal, that.numWallImgs);
@@ -162,6 +170,7 @@ MapData.setAllTimeHighImageNum = function(that) {
 // Checks to make sure the line width is good - it must be a power of two so we can do the fast div and mult.
 //----------------------------------------------------------------------------------------------------------------------
 MapData.isLineLengthGood = function(width)  {
+    'use strict';
     if ((width != 16) && (width != 32) && (width != 64) && (width != 128) && (width != 256)) {
         var errStr = "The length of the first line in file '" + that.MAP_DATA_FILE + "' is " + width + ".";
         errStr += "Line length must be 16, 32, 64, 128, or 256.";
@@ -176,6 +185,7 @@ MapData.isLineLengthGood = function(width)  {
 //   callBackFunction - Function to inform the caller that we are done loading.
 //----------------------------------------------------------------------------------------------------------------------
 MapData.prototype.loadAssociatedImages = function(callBackFunction) {
+    'use strict';
     var callBackPresent = (typeof(callBackFunction) != "undefined");
     var curImageNum = 1;
     var that = this;
@@ -207,6 +217,7 @@ MapData.prototype.loadAssociatedImages = function(callBackFunction) {
 // Returns the ImageCanvas associated with the specified ch.
 //----------------------------------------------------------------------------------------------------------------------
 MapData.prototype.getCanvasImage = function(ch) {
+    'use strict';
     if (this.wallCanvasImgs.hasOwnProperty(ch)) {
         return this.wallCanvasImgs[ch];
     }

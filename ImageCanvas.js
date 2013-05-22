@@ -10,6 +10,7 @@ if (ImageCanvas == null || typeof(ImageCanvas) != "object") {var ImageCanvas = n
 // Constructor
 //----------------------------------------------------------------------------------------------------------------------
 ImageCanvas = function(document, mazeId, fileName, width, height){
+    'use strict';
     this.document = document;
     this.mazeId = mazeId;
     this.fileName = fileName;
@@ -27,6 +28,7 @@ ImageCanvas = function(document, mazeId, fileName, width, height){
 //   callBackFunction - Function to call when done loading.
 //----------------------------------------------------------------------------------------------------------------------
 ImageCanvas.prototype.loadFile = function(callBackFunction) {
+    'use strict';
     var callBackPresent = (typeof(callBackFunction) != "undefined");
 
     this.canvas = document.createElement("canvas");
@@ -75,6 +77,7 @@ ImageCanvas.prototype.loadFile = function(callBackFunction) {
 // Used for debugging purposes, this method shows the alpha data of the image.
 //----------------------------------------------------------------------------------------------------------------------
 ImageCanvas.prototype.showAlphaData = function() {
+    'use strict';
     var alphaData = [];
     for (var i = 0, len = this.imageData.data.length; i < len; i += 4) {
         var row = Math.floor((i / 4) / this.width);

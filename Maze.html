@@ -4,6 +4,11 @@
         <meta charset="UTF-8" />
         <title>Canvas Test</title>
         <script type="text/javascript" src="MazeGlobals.js"></script>
+        <script type="text/javascript" src="Trig.js"></script>
+        <script type="text/javascript" src="Dest.js"></script>
+        <script type="text/javascript" src="Trap.js"></script>
+        <script type="text/javascript" src="GeneralConfig.js"></script>
+        <script type="text/javascript" src="MazeConfig.js"></script>
         <script type="text/javascript" src="TextAreaBox.js"></script>
         <script type="text/javascript" src="MathUtils.js"></script>
         <script type="text/javascript" src="ImageCanvas.js"></script>
@@ -93,6 +98,10 @@
                         return;
                     }
 
+
+
+
+                /***
                     var iniFile = new IniFile(mazeId, "MazeConfig.ini");
                     iniFile.loadFile(function(statusGood, message) {
                         if (statusGood) console.log('Maze.html: MazeConfig.ini successfully loaded.');
@@ -101,6 +110,7 @@
                             return;
                         }
                     });
+                ***/
 
                     var mapData = new MapData(document, mazeId, textAreaBox);
                     mapData.loadDataFile(function(statusGood, message) {
@@ -116,11 +126,21 @@
                                 return;
                             }
                         });
-                    });
-                    maze = new Maze(ctx, mapData);
 
-                    window.addEventListener('keydown', doKeyDown, true);
-                    return setInterval(render, 100);
+
+                    var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
+                    mazeConfig.loadConfigFile(function(){});
+//                        maze = new Maze(ctx, mapData);
+
+                window.addEventListener('keydown', doKeyDown, true);
+                return setInterval(render, 100);
+
+
+
+                    });
+
+
+
                 }
 
                 //--------------------------------------------------------------------------------------------------

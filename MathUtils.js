@@ -10,6 +10,7 @@ if (MathUtils == null || typeof(MathUtils) != "object") {var MathUtils = new Obj
 // 17 the return is "h".
 //----------------------------------------------------------------------------------------------------------------------
 MathUtils.base10ToBase36 = function(i) {
+    'use strict';
     var strBase36 = "";
     var aVal = 'a'.charCodeAt(0);
     if (i > 9) {
@@ -24,6 +25,7 @@ MathUtils.base10ToBase36 = function(i) {
 // assumes all input data is lowercase.
 //----------------------------------------------------------------------------------------------------------------------
 MathUtils.base36ToBase10 = function(ch) {
+    'use strict';
     var dec = 0;
     var chVal = ch.charCodeAt(0);
     var zeroVal = '0'.charCodeAt(0);
@@ -41,6 +43,7 @@ MathUtils.base36ToBase10 = function(ch) {
 // to the 6th is 64).
 //----------------------------------------------------------------------------------------------------------------------
 MathUtils.logarithmBaseTwo = function(num) {
+    'use strict';
     switch (num) {
         case 2:
             return 1;

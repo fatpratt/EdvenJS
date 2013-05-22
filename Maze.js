@@ -15,6 +15,7 @@
 // image for drawing.
 //------------------------------------------------------------------------------
 Maze = function(canvasContext, mapData) {
+    'use strict';
 	this.canvasContext = canvasContext;
 	this.mapData = mapData;
 
@@ -83,6 +84,7 @@ Maze.prototype.background = null;     // holds background pixels
 // Convert from arc angles to radians for trig functions.
 //------------------------------------------------------------------------------
 Maze.prototype.arcToRad = function(arcAngle) {
+    'use strict';
 	return(1.0 * (arcAngle * Math.PI) / this.ANGLE180);
 };
 
@@ -92,6 +94,7 @@ Maze.prototype.arcToRad = function(arcAngle) {
 // set up to handle every possible angle.
 //------------------------------------------------------------------------------
 Maze.prototype.createTables = function() {
+    'use strict';
     var i = 0;
     var radian = 0.0;
 
@@ -157,8 +160,9 @@ Maze.prototype.createTables = function() {
 // position with the specified rgb values.
 //------------------------------------------------------------------------------
 Maze.prototype.setPixel = function(x, y, r, g, b) {
+    'use strict';
 	if (this.memPixels == null) return;
-    index = (x + y * this.memPixels.width) * 4;
+    var index = (x + y * this.memPixels.width) * 4;
     this.memPixels.data[index + 0] = r;
     this.memPixels.data[index + 1] = g;
     this.memPixels.data[index + 2] = b;
@@ -171,6 +175,7 @@ Maze.prototype.setPixel = function(x, y, r, g, b) {
 // wall hit.
 //------------------------------------------------------------------------------
 Maze.prototype.castRayForHorizHit = function(castArc) {
+    'use strict';
 	var distToNextXIntersection;
 	var distToNextHorizontalGrid;
 
@@ -270,6 +275,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 // parallel comments in the castRayForHorzHit method above.
 //------------------------------------------------------------------------------
 Maze.prototype.castRayForVertHit = function(castArc) {
+    'use strict';
 	var distToNextYIntersection;
 	var distToNextVerticalGrid;
 
@@ -325,6 +331,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 // 60 degrees of the players field of vision.
 //------------------------------------------------------------------------------
 Maze.prototype.renderOneFrame = function() {
+    'use strict';
    this.background.copyBackgroundTo(this.memPixels);
 
    // field of view is 60 degree with player's direction (angle) in the middle
@@ -334,7 +341,7 @@ Maze.prototype.renderOneFrame = function() {
 	   castArc = this.ANGLE360 + castArc;
 
    // go from left most column to right most column
-   for (castColumn = 0; castColumn < MazeGlobals.PROJECTIONPLANEWIDTH; castColumn += this.SLICE_WIDTH) {
+   for (var castColumn = 0; castColumn < MazeGlobals.PROJECTIONPLANEWIDTH; castColumn += this.SLICE_WIDTH) {
 	   // try out same angle with both vert and horiz wall
 	   var horizWallHitItem = this.castRayForHorizHit(castArc);
 	   var vertWallHitItem = this.castRayForVertHit(castArc);
@@ -365,6 +372,7 @@ Maze.prototype.renderOneFrame = function() {
 // eye lense correction.
 //------------------------------------------------------------------------------
 Maze.prototype.drawWallSlice = function(castColumn, itemHit) {
+    'use strict';
  	var sliceOfWall;    // where slice hits wall
 	var dist;
 	var topOfWall;      // used to compute the top and bottom of the sliver that
@@ -404,6 +412,7 @@ Maze.prototype.drawWallSlice = function(castColumn, itemHit) {
 // Draws a vertical slice of image on the specified column scaling appropriately.
 //------------------------------------------------------------------------------
 Maze.prototype.drawVertSliceOfImage = function(col, topOfLine, lineHeight, imageData, srcImageHeight, srcColImage) {
+    'use strict';
     var ratio = srcImageHeight / lineHeight;  // ratio between source and dest
     var yImage = 0;
     var botOfLine = topOfLine + lineHeight;
@@ -427,6 +436,7 @@ Maze.prototype.drawVertSliceOfImage = function(col, topOfLine, lineHeight, image
 // Renders the image by pushing the image data pixels to the graphics context.
 //------------------------------------------------------------------------------
 Maze.prototype.paint = function() {
+    'use strict';
 	this.canvasContext.putImageData(this.memPixels, 0, 0);
 };
 
@@ -434,6 +444,7 @@ Maze.prototype.paint = function() {
 // Rotates the player's angle left.
 //------------------------------------------------------------------------------
 Maze.prototype.rotateLeft = function() {
+    'use strict';
 	if ((this.playerArc -= this.ANGLE10) < this.ANGLE0)
 		this.playerArc += this.ANGLE360;
 	this.setPlayerPos();
@@ -443,6 +454,7 @@ Maze.prototype.rotateLeft = function() {
 // Rotate's player's angle right.
 //------------------------------------------------------------------------------
 Maze.prototype.rotateRight = function() {
+    'use strict';
 	if ((this.playerArc += this.ANGLE10) >= this.ANGLE360)
 		this.playerArc -= this.ANGLE360;
 	this.setPlayerPos();
@@ -452,6 +464,7 @@ Maze.prototype.rotateRight = function() {
 // Sets the players x and y directions based upon the current angle.
 //------------------------------------------------------------------------------
 Maze.prototype.setPlayerPos = function() {
+    'use strict';
     this.playerXDir = this.cosTable[this.playerArc];
     this.playerYDir = this.sinTable[this.playerArc];
 };
@@ -460,6 +473,7 @@ Maze.prototype.setPlayerPos = function() {
 // Moves the player forward.
 //------------------------------------------------------------------------------
 Maze.prototype.moveForward = function() {
+    'use strict';
 	var newPlayerX = this.playerX + this.playerXDir * this.playerSpeed;
 	var newPlayerY = this.playerY + this.playerYDir * this.playerSpeed;
 	this.attemptMove(newPlayerX, newPlayerY);
@@ -469,6 +483,7 @@ Maze.prototype.moveForward = function() {
 // Moves the player backward.
 //------------------------------------------------------------------------------
 Maze.prototype.moveBackward = function() {
+    'use strict';
 	var newPlayerX = this.playerX - this.playerXDir * this.playerSpeed;
     var newPlayerY = this.playerY - this.playerYDir * this.playerSpeed;
 	this.attemptMove(newPlayerX, newPlayerY);
@@ -479,6 +494,7 @@ Maze.prototype.moveBackward = function() {
 // inside a wall.
 //------------------------------------------------------------------------------
 Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
+    'use strict';
     // attempt moving to new x/y position
     var xGridIndex = newPlayerX >> MazeGlobals.TILE_SIZE_SHIFT;  // this is essentially rounding down to a close grid line
     var yGridIndex = newPlayerY >> MazeGlobals.TILE_SIZE_SHIFT;

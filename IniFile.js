@@ -10,6 +10,7 @@ if (IniFile == null || typeof(IniFile) != "object") {var IniFile = new Object();
 // Constructor
 //----------------------------------------------------------------------------------------------------------------------
 IniFile = function(mazeId, fileName) {
+    'use strict';
     this.iniObj = null;             // ini recreation as a js object
     this.mazeId = mazeId;           // dir where file is found
     this.fileName = fileName;       // ini filename
@@ -20,6 +21,7 @@ IniFile = function(mazeId, fileName) {
 //   callBackFunction - Function to call when done loading.
 //----------------------------------------------------------------------------------------------------------------------
 IniFile.prototype.loadFile = function(callBackFunction) {
+    'use strict';
     var callBackPresent = (typeof(callBackFunction) != "undefined");
     var xmlHttp = this.createXMLHttpRequest();
     var ajaxCall = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName;
@@ -46,6 +48,7 @@ IniFile.prototype.loadFile = function(callBackFunction) {
 // Creates and returns an ajax xhr object.
 //----------------------------------------------------------------------------------------------------------------------
 IniFile.prototype.createXMLHttpRequest = function() {
+    'use strict';
     var xmlHttp = null;
     if (window.ActiveXObject) {
         xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
@@ -62,6 +65,7 @@ IniFile.prototype.createXMLHttpRequest = function() {
 //    http://stackoverflow.com/questions/3870019/javascript-parser-for-a-string-which-contains-ini-data
 //----------------------------------------------------------------------------------------------------------------------
 IniFile.parseIniString = function(data) {
+    'use strict';
     var regex = {
         section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
         param: /^\s*([\w\.\-\_]+)\s*=\s*(.*?)\s*$/,

@@ -9,6 +9,7 @@ if (Background == null || typeof(Background) != "object") {var Background = new 
 // Constructor
 //--------------------------------------------------------------------------------------------------
 Background = function(canvasContext) {
+    'use strict';
     this.memPixels = canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
     this.createGradientBackground();
 };
@@ -31,6 +32,7 @@ Background.prototype.groundBlueStep = 1;
 //  Creates a gradient background.
 //--------------------------------------------------------------------------------------------------
 Background.prototype.createGradientBackground = function() {
+    'use strict';
     var red = this.skyRed;
     var green = this.skyGreen;
     var blue = this.skyBlue;
@@ -67,6 +69,7 @@ Background.prototype.createGradientBackground = function() {
 // destination - Destination pixel buffer.
 //--------------------------------------------------------------------------------------------------
 Background.prototype.copyBackgroundTo = function(destination) {
+    'use strict';
     for (var row = 0; row < (MazeGlobals.PROJECTIONPLANEHEIGHT); row++) {
         for (var col = 0; col < MazeGlobals.PROJECTIONPLANEWIDTH; col++) {
             var index = (col + row * this.memPixels.width) * 4;
@@ -83,6 +86,7 @@ Background.prototype.copyBackgroundTo = function(destination) {
 // position with the specified rgb values.
 //------------------------------------------------------------------------------
 Background.prototype.setPixel = function(x, y, r, g, b) {
+    'use strict';
     var index = (x + y * this.memPixels.width) * 4;
     this.memPixels.data[index + 0] = r;
     this.memPixels.data[index + 1] = g;

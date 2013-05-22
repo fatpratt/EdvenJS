@@ -6,6 +6,7 @@
 
 // constructor
 function WallHitItem(hitType, gridLine, intersection, castArc){
+    'use strict';
     this.hitType = hitType;           // this should be HORIZ_HIT or VERT_HIT
     this.gridLine = gridLine;         // int is okay here because it is always even multiple of 64
     this.intersection = intersection; // float here because it is usually not an a evenly rounded number
@@ -42,10 +43,12 @@ WallHitItem.prototype.castArc = 0;
 // -------- setters and getters ------------
 
 WallHitItem.prototype.isHorizHit = function() {
+    'use strict';
 	return (this.hitType == this.HORIZ_HIT);
 };
 
 WallHitItem.prototype.isVertHit = function() {
+    'use strict';
 	return (this.hitType == this.VERT_HIT);
 };
 
@@ -53,6 +56,7 @@ WallHitItem.prototype.isVertHit = function() {
 // Returns which of the two WallItems is the closest.
 //------------------------------------------------------------------------------
 function determineClosestHit(horizItemHit, vertItemHit) {
+    'use strict';
 	if (vertItemHit.offTheMap && horizItemHit.offTheMap) return horizItemHit;
 	if (vertItemHit.offTheMap) return horizItemHit;
 	if (horizItemHit.offTheMap) return vertItemHit;
@@ -66,6 +70,7 @@ function determineClosestHit(horizItemHit, vertItemHit) {
 // after calling this.
 //------------------------------------------------------------------------------
 WallHitItem.prototype.calcAndSetMapPos = function(mapData) {
+    'use strict';
 	if (this.hitType == this.HORIZ_HIT) { // round down to x position of intersection on small grid
 	    this.xGridIndex = ~~(this.intersection / MazeGlobals.TILE_SIZE);
 	    this.yGridIndex = (this.gridLine >> MazeGlobals.TILE_SIZE_SHIFT);
@@ -83,6 +88,7 @@ WallHitItem.prototype.calcAndSetMapPos = function(mapData) {
 // calcAndSetMapPos (in derived class) was called just prior.
 //------------------------------------------------------------------------------
 WallHitItem.prototype.calcAndSetOffTheMap = function(mapData) {
+    'use strict';
 	// xGridIndex and yGridIndex index is hopefully set prior
 	if ((this.xGridIndex >= mapData.mapWidth) || (this.yGridIndex >= mapData.mapHeight) ||
 			this.xGridIndex < 0 || this.yGridIndex < 0) {

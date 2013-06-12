@@ -19,10 +19,26 @@
 		<script type="text/javascript" src="WallHitItem.js"></script>
         <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
 
+        <script type="text/javascript">
+            var intervalId = null;
+            var maze = null;
+
+            function changeMaze() {
+                var canvasElements = document.getElementById('targetCanvasDiv');
+                while (canvasElements.hasChildNodes()) {
+                    canvasElements.removeChild(canvasElements.lastChild);
+                }
+                if (intervalId != null) window.clearInterval(intervalId);
+                intervalId = null;
+                maze = null;
+                init();
+            }
+        </script>
     </head>
+
     <body onload="init()">
         <section>
-            <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/> <input type="button" value="Change" onclick="changeMaze();"></span>
+            <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/> <input type="button" value="Change" onclick="javascript:changeMaze();"></span>
             <div id="targetCanvasDiv"></div>
             <div>
                 <canvas id="canvas" width="640" height="200">
@@ -30,9 +46,8 @@
                 </canvas>
             </div>
 
-            <script type="text/javascript">
 
-                var maze = null;
+            <script type="text/javascript">
 
                 //--------------------------------------------------------------------------------------------------
                 // Add support for those browsers that don't support "forEach" (such as older internet explorer).
@@ -138,7 +153,7 @@
 
                     });
 
-                    return setInterval(render, 100);
+                    intervalId = window.setInterval(render, 100);
 
                 }
 

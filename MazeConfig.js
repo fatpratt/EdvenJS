@@ -71,6 +71,17 @@ MazeConfig.prototype.loadConfigFile = function(callBackFunction) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// After all the information is read in from file, this method is called by maze routines
+// to get the destination specified by number.
+//----------------------------------------------------------------------------------------------------------------------
+MazeConfig.prototype.advanceToDest = function(destNum) {
+    if (destNum >= 0 && destNum < this.numDests)
+        return this.dests[destNum];
+    else return null;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
 // Reads the specified trap information from the appropriate section of the ini file.
 //----------------------------------------------------------------------------------------------------------------------
 MazeConfig.prototype.getTrap = function(num, mapWidth, mapHeight, numDests) {
@@ -80,14 +91,24 @@ MazeConfig.prototype.getTrap = function(num, mapWidth, mapHeight, numDests) {
 
     // -- trap's position --
 
-    trap.leftTile = this.getValueCheckingRange(section, "LeftTile", 15, 0, this.mapWidth - 1,
+    var leftTile = this.getValueCheckingRange(section, "LeftTile", 15, 0, this.mapWidth - 1,
         "This constraint is based upon the map width.");
-    trap.rightTile = this.getValueCheckingRange(section, "RightTile", 16, 0, mapWidth - 1,
+    var rightTile = this.getValueCheckingRange(section, "RightTile", 16, 0, mapWidth - 1,
         "This constraint is based upon the map width.");
-    trap.topTile = this.getValueCheckingRange(section, "TopTile", 15, 0, mapHeight - 1,
+    var topTile = this.getValueCheckingRange(section, "TopTile", 15, 0, mapHeight - 1,
         "This constraint is based upon the map height.");
-    trap.bottomTile = this.getValueCheckingRange(section, "BottomTile", 16, 0, mapHeight - 1,
+    var bottomTile = this.getValueCheckingRange(section, "BottomTile", 16, 0, mapHeight - 1,
         "This constraint is based upon the map height.");
+
+    var leftTileOffset = this.getValueCheckingRange(section, "LeftTileOffset", 0, 0, MazeGlobals.TILE_SIZE - 1, "");
+    var rightTileOffset = this.getValueCheckingRange(section, "RightTileOffset", 0, 0, MazeGlobals.TILE_SIZE - 1, "");
+    var topTileOffset = this.getValueCheckingRange(section, "TopTileOffset", 0, 0, MazeGlobals.TILE_SIZE - 1, "");
+    var bottomTileOffset = this.getValueCheckingRange(section, "BottomTileOffset", 0, 0, MazeGlobals.TILE_SIZE - 1, "");
+
+    trap.leftSide = (parseInt(leftTile, 10) *     MazeGlobals.TILE_SIZE) + parseInt(leftTileOffset, 10);
+    trap.rightSide = (parseInt(rightTile, 10) *   MazeGlobals.TILE_SIZE) + parseInt(rightTileOffset, 10);
+    trap.topSide = (parseInt(topTile, 10) *       MazeGlobals.TILE_SIZE) + parseInt(topTileOffset, 10);
+    trap.bottomSide = (parseInt(bottomTile, 10) * MazeGlobals.TILE_SIZE) + parseInt(bottomTileOffset, 10);
 
     // -- dest --
 
@@ -138,9 +159,9 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
         angle = 45;
     } else dest.useExistingAngle = false;
 
-    dest.xPos = (xTile * MazeGlobals.TILE_SIZE) + xTileOffset;
-    dest.yPos = (yTile * MazeGlobals.TILE_SIZE) + yTileOffset;
-    dest.angle = Trig.degreesToMazeAngleUnits(angle);
+    dest.xPos = (parseInt(xTile, 10) * MazeGlobals.TILE_SIZE) + parseInt(xTileOffset, 10);
+    dest.yPos = (parseInt(yTile, 10) * MazeGlobals.TILE_SIZE) + parseInt(yTileOffset, 10);
+    dest.angle = Trig.degreesToMazeAngleUnits(parseInt(angle, 10));
 
     // ----- gather landscape information ------
 
@@ -151,9 +172,10 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
     if (dest.usingALandscape) {
         dest.landscapeOffsetFromTop = this.iniObj[section]["LandscapeOffsetFromTop"];
         if (dest.landscapeOffsetFromTop == null) dest.landscapeOffsetFromTop = 0;
+        dest.landscapeOffsetFromTop = parseInt(dest.landscapeOffsetFromTop, 10)
         var landscapeStartAngle = this.iniObj[section]["LandscapeStartAngle"];
         if (landscapeStartAngle == null) landscapeStartAngle = 0;
-        dest.landscapeStartAngle = Trig.degreesToMazeAngleUnits(landscapeStartAngle);
+        dest.landscapeStartAngle = Trig.degreesToMazeAngleUnits(parseInt(landscapeStartAngle, 10));
         // TODO: check to make sure the file exists
     }
 
@@ -179,6 +201,20 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
         var groundRedStep   = this.getValueCheckingRange(section, "GroundRedStep",    MISSING_VALUE, -10, 10, "");
         var groundGreenStep = this.getValueCheckingRange(section, "GroundGreenStep",  MISSING_VALUE, -10, 10, "");
         var groundBlueStep  = this.getValueCheckingRange(section, "GroundBlueStep",   MISSING_VALUE, -10, 10, "");
+
+        skyRed      = parseInt(skyRed,      10);
+        skyGreen    = parseInt(skyGreen,    10);
+        skyBlue     = parseInt(skyBlue,     10);
+        groundRed   = parseInt(groundRed,   10);
+        groundGreen = parseInt(groundGreen, 10);
+        groundBlue  = parseInt(groundBlue,  10);
+
+        skyRedStep      = parseInt(skyRedStep,      10);
+        skyGreenStep    = parseInt(skyGreenStep,    10);
+        skyBlueStep     = parseInt(skyBlueStep,     10);
+        groundRedStep   = parseInt(groundRedStep,   10);
+        groundGreenStep = parseInt(groundGreenStep, 10);
+        groundBlueStep  = parseInt(groundBlueStep,  10);
 
         if (skyRed == MISSING_VALUE || skyGreen == MISSING_VALUE || skyBlue == MISSING_VALUE
                 || groundRed == MISSING_VALUE     || groundGreen == MISSING_VALUE     || groundBlue == MISSING_VALUE

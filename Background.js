@@ -14,6 +14,10 @@ Background = function(canvasContext) {
     this.createGradientBackground();
 };
 
+Background.prototype.backgroundFile = "";
+Background.prototype.isBackgroundFromFile = false;
+Background.prototype.isBackgroundFromRGB = true;
+
 Background.prototype.memPixels = [];
 Background.prototype.skyRed = 40;
 Background.prototype.skyGreen = 125;
@@ -27,6 +31,42 @@ Background.prototype.groundBlue = 40;
 Background.prototype.groundRedStep = 1;
 Background.prototype.groundGreenStep = 1;
 Background.prototype.groundBlueStep = 1;
+
+//--------------------------------------------------------------------------------------------------
+//  Sets background state based upon the destination object passed in.
+//--------------------------------------------------------------------------------------------------
+Background.prototype.setBackgroundFromDest = function(dest) {
+    'use strict';
+    if (dest.useExistingBackground) {
+        console.log('Background.js: programmer error... check useExistingBackground property before calling createBackgroundFromDest(). ');
+    }
+
+    this.backgroundFile = dest.backgroundFile;
+    this.isBackgroundFromFile = dest.isBackgroundFromFile;
+    this.isBackgroundFromRGB = dest.isBackgroundFromRGB;
+
+    this.skyRed = dest.skyRed;
+    this.skyGreen = dest.skyGreen;
+    this.skyBlue = dest.skyBlue;
+    this.groundRed = dest.groundRed;
+    this.groundGreen = dest.groundGreen;
+    this.groundBlue = dest.groundBlue;
+
+    this.skyRedStep = dest.skyRedStep;
+    this.skyGreenStep = dest.skyGreenStep;
+    this.skyBlueStep = dest.skyBlueStep;
+
+    this.groundRedStep = dest.groundRedStep;
+    this.groundGreenStep = dest.groundGreenStep;
+    this.groundBlueStep = dest.groundBlueStep;
+
+    if (this.backgroundFromRGB) {
+        this.createGradientBackground();
+    }
+    if (this.backgroundFromFile) {
+        // TODO: implement this later
+    }
+};
 
 //--------------------------------------------------------------------------------------------------
 //  Creates a gradient background.

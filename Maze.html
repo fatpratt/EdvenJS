@@ -22,7 +22,7 @@
     </head>
     <body onload="init()">
         <section>
-            <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/></span>
+            <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/> <input type="button" value="Change" onclick="changeMaze();"></span>
             <div id="targetCanvasDiv"></div>
             <div>
                 <canvas id="canvas" width="640" height="200">
@@ -128,18 +128,17 @@
                         });
 
 
-                    var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
-                    mazeConfig.loadConfigFile(function(){});
-//                        maze = new Maze(ctx, mapData);
-
-                window.addEventListener('keydown', doKeyDown, true);
-                return setInterval(render, 100);
+                        var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
+                        mazeConfig.loadConfigFile(function(){
+                            maze = new Maze(ctx, mapData, mazeConfig);
+                            window.addEventListener('keydown', doKeyDown, true);
+                        });
 
 
 
                     });
 
-
+                    return setInterval(render, 100);
 
                 }
 

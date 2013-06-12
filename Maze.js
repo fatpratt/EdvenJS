@@ -4,9 +4,10 @@
 // canvas context continuously.
 //
 // To alleviate the complexity of this module, other objects/classes provide
-// minimal functionality to service this class.  A MapData object is always
+// minimal functionality to service this class. A MapData object is always
 // passed into this class which describes what the maze looks like from
-// a birds-eye-view.  The WallHitItem objects help in the ray casting process.
+// a birds-eye-view.  MazeConfig describes traps and destination locations
+// within the maze.  The WallHitItem objects help in the ray casting process.
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -14,18 +15,24 @@
 // tables in memory, sets up the player's initial position and prepares memory
 // image for drawing.
 //------------------------------------------------------------------------------
-Maze = function(canvasContext, mapData) {
+Maze = function(canvasContext, mapData, mazeConfig) {
     'use strict';
 	this.canvasContext = canvasContext;
 	this.mapData = mapData;
+	this.mazeConfig = mazeConfig;
 
-	this.background = new Background(canvasContext);
+    this.createTables();
 
-	this.createTables();
-
-    this.playerX = 130;    // adjust these to move inital player position
-    this.playerY = 130;
-    this.playerArc = 0;
+    this.curDest = this.mazeConfig.advanceToDest(0);    // zero is the initial starting destination
+    //this.playerX = 130;    // initial player position comes from first destination
+    //this.playerY = 130;
+    //this.playerArc = 0;
+    //this.background = new Background(canvasContext);
+    this.playerX = this.curDest.xPos;    // initial player position comes from first destination
+    this.playerY = this.curDest.yPos;
+    this.playerArc = this.curDest.angle;
+    this.background = new Background(canvasContext);
+    this.background.setBackgroundFromDest(this.curDest);
 
     // create image as buffer for drawing
 	this.memPixels = this.canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
@@ -59,6 +66,7 @@ Maze.prototype.xStepTable = [];  // for each possible angle, here is how far X s
 Maze.prototype.yStepTable = [];  // for each possible angle, here is how far Y spans when X spans by 64
 
 // player's coordinates in the maze
+Maze.prototype.curDest = null;
 Maze.prototype.playerX = 130;
 Maze.prototype.playerY = 130;
 Maze.prototype.playerArc = 0;   // player's current angle he/she is facing
@@ -75,6 +83,7 @@ Maze.prototype.playerYDir = 0.0;     // always eqal to sinTable[playerArc];
 Maze.prototype.SLICE_WIDTH = 1;      // width of vertical slice drawn
 
 Maze.prototype.mapData = null;
+Maze.prototype.mazeConfig = null;
 Maze.prototype.canvasContext = null;  // screen drawing canvas context
 Maze.prototype.memPixels = null;   // temp buffer for building image
 

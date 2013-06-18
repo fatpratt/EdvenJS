@@ -3,6 +3,7 @@
 // This object can be used as a singleton through out the application calling methods to display text
 // repeatedly like a console.  Typically you make two calls for the text to appear... first call setDisplayText()
 // then call render(), or you could simply call dumpText() (or dumpError()) and do it all in one statement.
+// @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: TextAreaBox

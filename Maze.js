@@ -8,6 +8,8 @@
 // passed into this class which describes what the maze looks like from
 // a birds-eye-view.  MazeConfig describes traps and destination locations
 // within the maze.  The WallHitItem objects help in the ray casting process.
+//
+// @author brianpratt
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -24,10 +26,6 @@ Maze = function(canvasContext, mapData, mazeConfig) {
     this.createTables();
 
     this.curDest = this.mazeConfig.advanceToDest(0);    // zero is the initial starting destination
-    //this.playerX = 130;    // initial player position comes from first destination
-    //this.playerY = 130;
-    //this.playerArc = 0;
-    //this.background = new Background(canvasContext);
     this.playerX = this.curDest.xPos;    // initial player position comes from first destination
     this.playerY = this.curDest.yPos;
     this.playerArc = this.curDest.angle;

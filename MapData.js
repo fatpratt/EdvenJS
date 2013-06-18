@@ -6,6 +6,8 @@
 // patterns are used to keep the caller informed.  To create and use a MapData object, you must
 // first call the constructor, then call loadDataFile(), wait for the callback notification, then
 // call loadAssociatedImages() and again wait for the callback notification.
+//
+// @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: MapData

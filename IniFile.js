@@ -1,6 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Routines for handling Windows-style INI files.  To use an IniFile object, you must call the constructor
 // then call loadFile(), passing a callback function so the caller knows when it's loaded.
+// @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: IniFile

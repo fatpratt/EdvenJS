@@ -1,6 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Holds all general configuration information as established in the MazeConfig.ini file which primarily contains
 // traps and destinations.
+// @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: MazeConfig

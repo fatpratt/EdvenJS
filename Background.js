@@ -1,5 +1,6 @@
 //--------------------------------------------------------------------------------------------------
 // Used to define a cache of pixels which define the background image in the view.
+// @author brianpratt
 //--------------------------------------------------------------------------------------------------
 
 // Namespace: Background

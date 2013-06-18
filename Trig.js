@@ -1,6 +1,10 @@
 //----------------------------------------------------------------------------------------------------------------------
 // This file defines pre-calculated trigonometry values for a set of select angles relevant to ray casting.
 // Also contained, herein are helpful trigonometric methods.
+//
+// TODO: Bring over all the trig table code from Maze.js to this file.
+//
+// @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: Trig

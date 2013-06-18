@@ -49,6 +49,12 @@
 
             <script type="text/javascript">
 
+                var upArrowEvent = false;
+                var downArrowEvent = false;
+                var leftArrowEvent = false;
+                var rightArrowEvent = false;
+                var courtesyCnt = 0;
+
                 //--------------------------------------------------------------------------------------------------
                 // Add support for those browsers that don't support "forEach" (such as older internet explorer).
                 //--------------------------------------------------------------------------------------------------
@@ -113,20 +119,6 @@
                         return;
                     }
 
-
-
-
-                /***
-                    var iniFile = new IniFile(mazeId, "MazeConfig.ini");
-                    iniFile.loadFile(function(statusGood, message) {
-                        if (statusGood) console.log('Maze.html: MazeConfig.ini successfully loaded.');
-                        else {
-                            textAreaBox.dumpError('error: ' + message);
-                            return;
-                        }
-                    });
-                ***/
-
                     var mapData = new MapData(document, mazeId, textAreaBox);
                     mapData.loadDataFile(function(statusGood, message) {
                         if (statusGood) console.log('Maze.html: Map Data file successfully loaded.');
@@ -146,14 +138,18 @@
                         var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
                         mazeConfig.loadConfigFile(function(){
                             maze = new Maze(ctx, mapData, mazeConfig);
-                            window.addEventListener('keydown', doKeyDown, true);
+                            maze.renderOneFrame();
+                            //window.addEventListener('keydown', doKeyDown, false);
+                            //window.addEventListener('keyup',   doKeyUp,   false);
                         });
 
 
 
                     });
 
-                    intervalId = window.setInterval(render, 100);
+                    intervalId = window.setInterval(render, 30);
+                    window.addEventListener('keydown', doKeyDown, false);
+                    window.addEventListener('keyup',   doKeyUp,   false);
 
                 }
 
@@ -164,20 +160,37 @@
                 	if (maze == null) return;
                     switch (evt.keyCode) {
                         case 38: // Up arrow was pressed
-                        	maze.moveForward();
-                            maze.renderOneFrame();
+                        	upArrowEvent = true;
                             break;
                         case 40: // Down arrow was pressed
-                        	maze.moveBackward();
-                            maze.renderOneFrame();
+                            downArrowEvent = true;
                             break;
                         case 37: // Left arrow was pressed
-                        	maze.rotateLeft();
-                            maze.renderOneFrame();
+                            leftArrowEvent = true;
                             break;
                         case 39: // Right arrow was pressed
-                        	maze.rotateRight();
-                            maze.renderOneFrame();
+                            rightArrowEvent = true;
+                            break;
+                    }
+                }
+
+                //--------------------------------------------------------------------------------------------------
+                // On key up event.
+                //--------------------------------------------------------------------------------------------------
+                function doKeyUp(evt) {
+                	if (maze == null) return;
+                    switch (evt.keyCode) {
+                        case 38: // Up arrow was released
+                            upArrowEvent = false;
+                            break;
+                        case 40: // Down arrow was released
+                            downArrowEvent = false;
+                            break;
+                        case 37: // Left arrow was released
+                            leftArrowEvent = false;
+                            break;
+                        case 39: // Right arrow was released
+                            rightArrowEvent = false;
                             break;
                     }
                 }
@@ -186,13 +199,48 @@
                 // Render a frame.
                 //--------------------------------------------------------------------------------------------------
                 function render() {
-                    if (maze != null) maze.renderOneFrame();
+                    if (maze == null) return;
+
+                    if (upArrowEvent) {
+                        maze.moveForward();
+                        maze.renderOneFrame();
+                        upArrowEvent = false;
+                        courtesyCnt = 0;
+                    }
+
+                    if (downArrowEvent) {
+                        maze.moveBackward();
+                        maze.renderOneFrame();
+                        downArrowEvent = false;
+                        courtesyCnt = 0;
+                    }
+
+                    if (leftArrowEvent) {
+                        maze.rotateLeft();
+                        maze.renderOneFrame();
+                        leftArrowEvent = false;
+                        courtesyCnt = 0;
+                    }
+
+                    if (rightArrowEvent) {
+                        maze.rotateRight();
+                        maze.renderOneFrame();
+                        rightArrowEvent = false;
+                        courtesyCnt = 0;
+                    }
+
+                    // every once in a while you need to do a courtesy render even if there are no events
+                    if (courtesyCnt == 15) {     // assumes this function is called on a regular interval
+                        maze.renderOneFrame();
+                        courtesyCnt = 0;
+                    }
+                    courtesyCnt++;
                 }
 
-                window.addEventListener('keydown', doKeyDown, true);
+
             </script>
 
-            http://stackoverflow.com/questions/12273451/how-to-fix-delay-in-javascript-keydown
+
 
         </section>
     </body>

@@ -1,6 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Image housed as a canvas for individual pixel evaluation.  To use an ImageCanvase object, you must call the constructor
 // then call loadFile(), passing a callback function so the caller knows when it's loaded.
+// @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: ImageCanvas

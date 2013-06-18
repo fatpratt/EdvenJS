@@ -2,6 +2,7 @@
 // Data for a position on a wall which is hit by a ray.
 // The WallItem serves as a means of tracking and comparing all wall hits
 // for the Maze.
+// @author brianpratt
 //------------------------------------------------------------------------------
 
 // constructor

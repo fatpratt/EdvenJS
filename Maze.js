@@ -5,7 +5,7 @@
 //
 // To alleviate the complexity of this module, other objects/classes provide
 // minimal functionality to service this class. A MapData object is always
-// passed into this class which describes what the maze looks like from
+// passed in and describes what the maze looks like from
 // a birds-eye-view.  MazeConfig describes traps and destination locations
 // within the maze.  The WallHitItem objects help in the ray casting process.
 //
@@ -23,7 +23,8 @@ Maze = function(canvasContext, mapData, mazeConfig) {
 	this.mapData = mapData;
 	this.mazeConfig = mazeConfig;
 
-    this.createTables();
+    //this.createTables();
+    this.trig = new Trig();
 
     this.curDest = this.mazeConfig.advanceToDest(0);    // zero is the initial starting destination
     this.playerX = this.curDest.xPos;    // initial player position comes from first destination
@@ -40,28 +41,7 @@ Maze = function(canvasContext, mapData, mazeConfig) {
 
 Maze.prototype.WALL_HEIGHT = 64;
 
-Maze.prototype.ANGLE60 = MazeGlobals.PROJECTIONPLANEWIDTH;             // field of view for player is 60 degrees and it follows
-                                                                // that 5.33 is the ratio of proj plan pixels and angle
-
-Maze.prototype.ANGLE30  = Math.round(Maze.prototype.ANGLE60 / 2);
-Maze.prototype.ANGLE90  = Math.round(Maze.prototype.ANGLE30 * 3);
-Maze.prototype.ANGLE180 = Math.round(Maze.prototype.ANGLE90 * 2);
-Maze.prototype.ANGLE270 = Math.round(Maze.prototype.ANGLE90 * 3);
-Maze.prototype.ANGLE360 = Math.round(Maze.prototype.ANGLE60 * 6);
-Maze.prototype.ANGLE0   = 0;
-Maze.prototype.ANGLE5   = Math.round(Maze.prototype.ANGLE30 / 6);
-Maze.prototype.ANGLE10  = Math.round(Maze.prototype.ANGLE5 * 2);
-
-// large precomputed trig and math tables for every possible angle making life easier at runtime
-Maze.prototype.sinTable = [];
-Maze.prototype.iSinTable = [];   // inverse sin table -- 1/sin(alpha)
-Maze.prototype.cosTable = [];
-Maze.prototype.iCosTable = [];   // inverse cosine table -- 1/cos(alpha)
-Maze.prototype.tanTable = [];
-Maze.prototype.iTanTable = [];   // inverse tangent table -- 1/tan(alpha)
-Maze.prototype.fishTable = [];   // corrects fish eye view
-Maze.prototype.xStepTable = [];  // for each possible angle, here is how far X spans when Y spans by 64
-Maze.prototype.yStepTable = [];  // for each possible angle, here is how far Y spans when X spans by 64
+Maze.prototype.trig = null;
 
 // player's coordinates in the maze
 Maze.prototype.curDest = null;
@@ -86,81 +66,6 @@ Maze.prototype.canvasContext = null;  // screen drawing canvas context
 Maze.prototype.memPixels = null;   // temp buffer for building image
 
 Maze.prototype.background = null;     // holds background pixels
-
-//------------------------------------------------------------------------------
-// Convert from arc angles to radians for trig functions.
-//------------------------------------------------------------------------------
-Maze.prototype.arcToRad = function(arcAngle) {
-    'use strict';
-	return(1.0 * (arcAngle * Math.PI) / this.ANGLE180);
-};
-
-//------------------------------------------------------------------------------
-// Sets up the precalculated trig and math tables in memory which are indexed
-// by angle look-ups to make things run smoothly at render time.  Tables are
-// set up to handle every possible angle.
-//------------------------------------------------------------------------------
-Maze.prototype.createTables = function() {
-    'use strict';
-    var i = 0;
-    var radian = 0.0;
-
-    this.sinTable   = new Array(this.ANGLE360 + 1);    // big tables for every possible angle
-	this.iSinTable  = new Array(this.ANGLE360 + 1);
-	this.cosTable   = new Array(this.ANGLE360 + 1);
-	this.iCosTable  = new Array(this.ANGLE360 + 1);
-	this.tanTable   = new Array(this.ANGLE360 + 1);
-	this.iTanTable  = new Array(this.ANGLE360 + 1);
-	this.fishTable  = new Array(this.ANGLE60 + 1);
-	this.xStepTable = new Array(this.ANGLE360 + 1);
-	this.yStepTable = new Array(this.ANGLE360 + 1);
-
-    for (i = 0; i <= this.ANGLE360; i++) {
-	    radian = this.arcToRad(i) + (0.0001);  // convert to radian value for trig calls
-	    this.sinTable[i] = Math.sin(radian);
-	    this.iSinTable[i] = (1.0 / (this.sinTable[i]));
-
-	    this.cosTable[i] = Math.cos(radian);
-	    this.iCosTable[i] = (1.0 / (this.cosTable[i]));
-
-	    this.tanTable[i] = Math.tan(radian);
-	   	this.iTanTable[i] = (1.0 / this.tanTable[i]);
-
-	    // west portion of aerial map
-	   	if (i >= this.ANGLE90 && i < this.ANGLE270) {
-	   		this.xStepTable[i] = (1.0 * MazeGlobals.TILE_SIZE / this.tanTable[i]);
-	   		if (this.xStepTable[i] > 0)
-	   			this.xStepTable[i] = -this.xStepTable[i];
-    	}
-
-	   	// east portion of aerial map
-	   	else {
-	   		this.xStepTable[i] = (1.0 * MazeGlobals.TILE_SIZE / this.tanTable[i]);
-	   		if (this.xStepTable[i] < 0)
-	   			this.xStepTable[i] = -this.xStepTable[i];
-	   	}
-
-	   	// facing bottom portion of aerial map
-	   	if (i >= this.ANGLE0 && i < this.ANGLE180) {
-	   		this.yStepTable[i] = (1.0 * MazeGlobals.TILE_SIZE * this.tanTable[i]);
-	   		if (this.yStepTable[i] < 0)
-	   			this.yStepTable[i] = -this.yStepTable[i];
-	   	}
-
-	   	// facing upper portion of aerial map
-	   	else {
-	   		this.yStepTable[i] = (1.0 * MazeGlobals.TILE_SIZE * this.tanTable[i]);
-	   		if (this.yStepTable[i] > 0)
-	   			this.yStepTable[i] = -this.yStepTable[i];
-	   	}
-	}
-
-    // build tables to correct fish eye view
-    for (i = -this.ANGLE30; i <= this.ANGLE30; i++) {
-    	radian = this.arcToRad(i);
-    	this.fishTable[i + this.ANGLE30] = (1.0 / Math.cos(radian));
-    }
-};
 
 //------------------------------------------------------------------------------
 // Sets a pixel in the image data buffer based upon the x and y
@@ -193,7 +98,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 	// STEP ONE -- (the hardest one) find the coord of where the first horiz wall is hit
 
 	// ray is facing down
-	if (castArc > this.ANGLE0 && castArc < this.ANGLE180) {
+	if (castArc > this.trig.ANGLE0 && castArc < this.trig.ANGLE180) {
 		// the following line is simply  ay = (py/64) * (64) + 64   where "p" is the
 		// players position and "a" is the position of the first horiz line hit
 		// this is simply looking at the next horizontal line past the player
@@ -201,7 +106,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 		// if we know one side and one angle, we can get the other side
 		// ax = px + (ay - py) / tan(alpha)
-		ax = this.playerX + ((ay - this.playerY) * this.iTanTable[castArc]);
+		ax = this.playerX + ((ay - this.playerY) * this.trig.iTanTable[castArc]);
 
 	    // ray is going down so increment by positive 64 going
 	    // from one line to the next in step 3
@@ -219,7 +124,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 		// if we know one side and one angle, we can get the other side
 		// ax = px + (ay - py) / tan(alpha)
-		ax = this.playerX + ((ay - this.playerY) * this.iTanTable[castArc]);
+		ax = this.playerX + ((ay - this.playerY) * this.trig.iTanTable[castArc]);
 
 		// ray is going up so decrement by 64 (going up means less y)
 		// as we move from one horiz line to the next in step 3
@@ -232,7 +137,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 
 	// if horizontal ray
-	if (castArc == this.ANGLE0 || castArc == this.ANGLE180) {
+	if (castArc == this.trig.ANGLE0 || castArc == this.trig.ANGLE180) {
 		// if casting parallel to horiz wall ignore all horiz hits
 		horizItemHit.distToItem = Number.MAX_VALUE;
 	}
@@ -243,7 +148,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 		// STEP TWO -- set distToNextXIntersection and distToNextHorizontalGrid (already done)
 
 		// set precalculated distance between x lines for this angle
-		distToNextXIntersection = this.xStepTable[castArc];
+		distToNextXIntersection = this.trig.xStepTable[castArc];
 		while (true) {
 
 			// STEP THREE -- convert to the small grid coordinates and see if we are on a wall
@@ -257,7 +162,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 			// if wall was hit, stop here
 			else if (this.mapData.isWall(horizItemHit.mapPos)) {
 				// if we know one side and one angle, we can get the hypotenuse
-				horizItemHit.distToItem = ((horizItemHit.intersection - this.playerX) * this.iCosTable[castArc]);
+				horizItemHit.distToItem = ((horizItemHit.intersection - this.playerX) * this.trig.iCosTable[castArc]);
 				break;
 			}
 
@@ -290,25 +195,25 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 	var ay = 0.0;
 	var hitSide = WallHitItem.prototype.RIGHT_SIDE_HIT;
 
-	if (castArc < this.ANGLE90 || castArc > this.ANGLE270) {
+	if (castArc < this.trig.ANGLE90 || castArc > this.trig.ANGLE270) {
 		ax = ((this.playerX >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT) + MazeGlobals.TILE_SIZE;
-		ay = this.playerY + ((ax - this.playerX) * this.tanTable[castArc]);
+		ay = this.playerY + ((ax - this.playerX) * this.trig.tanTable[castArc]);
 		distToNextVerticalGrid = MazeGlobals.TILE_SIZE;
 	}
 	else {
 	    hitSide = WallHitItem.prototype.LEFT_SIDE_HIT;
 		ax = (this.playerX >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT;
-		ay = this.playerY + ((ax - this.playerX) * this.tanTable[castArc]);
+		ay = this.playerY + ((ax - this.playerX) * this.trig.tanTable[castArc]);
 		distToNextVerticalGrid = -MazeGlobals.TILE_SIZE;
 		ax--;
 	}
 	var vertItemHit = new WallHitItem(WallHitItem.prototype.VERT_HIT, ax, ay, castArc);
 
-	if (castArc == this.ANGLE90 || castArc == this.ANGLE270) {
+	if (castArc == this.trig.ANGLE90 || castArc == this.trig.ANGLE270) {
 		vertItemHit.distToItem = Number.MAX_VALUE;
 	}
 	else {
-		distToNextYIntersection = this.yStepTable[castArc];
+		distToNextYIntersection = this.trig.yStepTable[castArc];
 		while (true) {
 			vertItemHit.calcAndSetMapPos(this.mapData);
 			vertItemHit.calcAndSetOffTheMap(this.mapData);
@@ -318,7 +223,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 			}
 
 			else if (this.mapData.isWall(vertItemHit.mapPos)) {
-				vertItemHit.distToItem = ((vertItemHit.intersection - this.playerY) * this.iSinTable[castArc]);
+				vertItemHit.distToItem = ((vertItemHit.intersection - this.playerY) * this.trig.iSinTable[castArc]);
 				break;
 			}
 
@@ -343,9 +248,9 @@ Maze.prototype.renderOneFrame = function() {
 
    // field of view is 60 degree with player's direction (angle) in the middle
    // we will trace the rays starting from the leftmost ray
-   var castArc = this.playerArc - this.ANGLE30;
+   var castArc = this.playerArc - this.trig.ANGLE30;
    if (castArc < 0)    // wrap around if necessary
-	   castArc = this.ANGLE360 + castArc;
+	   castArc = this.trig.ANGLE360 + castArc;
 
    // go from left most column to right most column
    for (var castColumn = 0; castColumn < MazeGlobals.PROJECTIONPLANEWIDTH; castColumn += this.SLICE_WIDTH) {
@@ -363,8 +268,8 @@ Maze.prototype.renderOneFrame = function() {
 
 	   // increment angle moving on to the next slice (remember ANGLE60 == PROJECTIONPLANEWIDTH)
 	   castArc += this.SLICE_WIDTH;
-	   if (castArc >= this.ANGLE360)
-			castArc -= this.ANGLE360;
+	   if (castArc >= this.trig.ANGLE360)
+			castArc -= this.trig.ANGLE360;
 
 	   // we are done with these so enable garbase collection
 	   horizWallHitItem = null;
@@ -388,7 +293,7 @@ Maze.prototype.drawWallSlice = function(castColumn, itemHit) {
 	if (!itemHit.offTheMap) {
 		sliceOfWall = (~~(itemHit.intersection)) % MazeGlobals.TILE_SIZE;
 		dist = itemHit.distToItem;
-		dist /= this.fishTable[castColumn];
+		dist /= this.trig.fishTable[castColumn];
 
 		var projectedWallHeight = this.WALL_HEIGHT * (this.playerDistanceToTheProjectionPlane / dist);
 		bottomOfWall = this.projectionPlaneYCenter + ~~(projectedWallHeight * 0.5);
@@ -452,8 +357,8 @@ Maze.prototype.paint = function() {
 //------------------------------------------------------------------------------
 Maze.prototype.rotateLeft = function() {
     'use strict';
-	if ((this.playerArc -= this.ANGLE10) < this.ANGLE0)
-		this.playerArc += this.ANGLE360;
+	if ((this.playerArc -= this.trig.ANGLE10) < this.trig.ANGLE0)
+		this.playerArc += this.trig.ANGLE360;
 	this.setPlayerPos();
 };
 
@@ -462,8 +367,8 @@ Maze.prototype.rotateLeft = function() {
 //------------------------------------------------------------------------------
 Maze.prototype.rotateRight = function() {
     'use strict';
-	if ((this.playerArc += this.ANGLE10) >= this.ANGLE360)
-		this.playerArc -= this.ANGLE360;
+	if ((this.playerArc += this.trig.ANGLE10) >= this.trig.ANGLE360)
+		this.playerArc -= this.trig.ANGLE360;
 	this.setPlayerPos();
 };
 
@@ -472,8 +377,8 @@ Maze.prototype.rotateRight = function() {
 //------------------------------------------------------------------------------
 Maze.prototype.setPlayerPos = function() {
     'use strict';
-    this.playerXDir = this.cosTable[this.playerArc];
-    this.playerYDir = this.sinTable[this.playerArc];
+    this.playerXDir = this.trig.cosTable[this.playerArc];
+    this.playerYDir = this.trig.sinTable[this.playerArc];
 };
 
 //------------------------------------------------------------------------------

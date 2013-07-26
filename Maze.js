@@ -435,3 +435,6 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
         return;
     }
 };
+
+
+

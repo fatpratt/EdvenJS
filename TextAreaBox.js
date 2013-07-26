@@ -136,3 +136,5 @@ TextAreaBox.prototype.wrapLines = function(displayStr, maxDisplayWidth) {
     });
     return out;
 };
+
+

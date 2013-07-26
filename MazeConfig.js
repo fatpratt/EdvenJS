@@ -35,6 +35,7 @@ MazeConfig.prototype.loadConfigFile = function(callBackFunction) {
     var callBackPresent = (typeof(callBackFunction) != "undefined");
 
     var iniFile = new IniFile(this.mazeId, this.MAZE_CONFIG_INI_FILE);
+
     var that = this;
     iniFile.loadFile(function(statusGood, message) {
         if (!statusGood) {
@@ -240,9 +241,10 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
         dest.groundBlueStep  = groundBlueStep  == MISSING_VALUE ? 1 : groundBlueStep;
     }
 
-    if (dest.backgroundFromFile) {
-        // TODO: check for the existence of a background file and log a message if missing
-    }
+    // TODO: check for the existence of a background file and log a message if missing... implement later
+    //if (dest.backgroundFromFile) {
+
+    //}
 
     // if we are getting the first destination, then we do some additional checking
     if (num == 0) {
@@ -278,4 +280,5 @@ MazeConfig.prototype.getValueCheckingRange = function(section, key, defaultVal, 
     }
     return value;
 };
+
 

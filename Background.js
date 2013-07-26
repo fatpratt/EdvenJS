@@ -64,9 +64,9 @@ Background.prototype.setBackgroundFromDest = function(dest) {
     if (this.backgroundFromRGB) {
         this.createGradientBackground();
     }
-    if (this.backgroundFromFile) {
-        // TODO: implement this later
-    }
+    // TODO: implement the following code later
+    //if (this.backgroundFromFile) {
+    //}
 };
 
 //--------------------------------------------------------------------------------------------------

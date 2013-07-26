@@ -44,6 +44,8 @@ MapData = function(document, mazeId, textAreaBox) {
 };
 
 MapData.prototype.MAP_DATA_FILE = "WallData.txt";
+MapData.prototype.mapWidth = 8;
+MapData.prototype.mapHeight = 8;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Loads and parses the MapData file.
@@ -225,4 +227,5 @@ MapData.prototype.getCanvasImage = function(ch) {
     }
     return null;
 }
+
 

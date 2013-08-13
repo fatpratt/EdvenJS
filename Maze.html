@@ -14,10 +14,12 @@
         <script type="text/javascript" src="ImageCanvas.js"></script>
         <script type="text/javascript" src="IniFile.js"></script>
         <script type="text/javascript" src="MapData.js"></script>
+        <script type="text/javascript" src="PropData.js"></script>
         <script type="text/javascript" src="MazeGlobals.js"></script>
         <script type="text/javascript" src="Maze.js"></script>
         <script type="text/javascript" src="Background.js"></script>
 		<script type="text/javascript" src="WallHitItem.js"></script>
+        <script type="text/javascript" src="PropHitItem.js"></script>
         <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
 
         <script type="text/javascript">
@@ -76,6 +78,23 @@
                 }());
 
                 //--------------------------------------------------------------------------------------------------
+                // Add "findFirst" support to arrays.
+                //--------------------------------------------------------------------------------------------------
+                (function () {
+                    if (!Array.prototype.findFirst) {
+                        Array.prototype.findFirst = function (predicateCallback) {
+                            if (typeof predicateCallback !== 'function') {
+                                return undefined;
+                            }
+                            for (var i = 0; i < this.length; i++) {
+                                if (i in this && predicateCallback(this[i])) return this[i];
+                            }
+                            return undefined;
+                        };
+                    }
+                }());
+
+                //--------------------------------------------------------------------------------------------------
                 // For those browsers that don't support console.log() define a dummy version to prevent crashes.
                 //--------------------------------------------------------------------------------------------------
                 (function () {
@@ -99,7 +118,50 @@
                         canvas = G_vmlCanvasManager.initElement(canvas);
                     }
                     return canvas;
-                }
+                };
+
+                //--------------------------------------------------------------------------------------------------
+                // Loads map files, config files and starts things up.
+                //--------------------------------------------------------------------------------------------------
+                function loadAndStart(ctx, mazeId, textAreaBox) {
+                    var mapData = new MapData(document, mazeId, textAreaBox);
+                    mapData.loadDataFile(function(statusGood, message) {
+                        if (statusGood) console.log('Maze.html: Map Data file successfully loaded.');
+                        else {
+                            textAreaBox.dumpError('error unable to load Map Data file: ' + message);
+                            return;
+                        }
+                        mapData.loadAssociatedImages(function(statusGood2, message2) {
+                            if (statusGood2) console.log('Maze.html: successfully loaded associated wall image files');
+                            else {
+                                textAreaBox.dumpError('error unable to load associated images: ' + message2);
+                                return;
+                            }
+                        });
+
+                        var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
+                        mazeConfig.loadConfigFile(function(){
+                            var propData = new PropData(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth, mapData.mapWidthShift);
+                            propData.loadDataFile(function(statusGood, message) {
+                                if (statusGood) console.log('Maze.html: Prop Data file successfully loaded.');
+                                else {
+                                    textAreaBox.dumpError('error unable to load Prop Data file: ' + message);
+                                    return;
+                                }
+                                propData.loadAssociatedImages(function(statusGood2, message2) {
+                                    if (statusGood2) console.log('Maze.html: successfully loaded associated prop image files');
+                                    else {
+                                        textAreaBox.dumpError('error unable to load associated images: ' + message2);
+                                        return;
+                                    }
+                                });
+                            });
+
+                            maze = new Maze(ctx, mapData, propData, mazeConfig);
+                            maze.renderOneFrame();
+                        });
+                    });
+                };
 
                 //--------------------------------------------------------------------------------------------------
                 // Main entry point.
@@ -120,38 +182,11 @@
                         return;
                     }
 
-                    var mapData = new MapData(document, mazeId, textAreaBox);
-                    mapData.loadDataFile(function(statusGood, message) {
-                        if (statusGood) console.log('Maze.html: Map Data file successfully loaded.');
-                        else {
-                            textAreaBox.dumpError('error unable to load Map Data file: ' + message);
-                            return;
-                        }
-                        mapData.loadAssociatedImages(function(statusGood2, message2) {
-                            if (statusGood2) console.log('Maze.html: successfully loaded associated image files');
-                            else {
-                                textAreaBox.dumpError('error unable to load associated images: ' + message2);
-                                return;
-                            }
-                        });
-
-
-                        var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
-                        mazeConfig.loadConfigFile(function(){
-                            maze = new Maze(ctx, mapData, mazeConfig);
-                            maze.renderOneFrame();
-                            //window.addEventListener('keydown', doKeyDown, false);
-                            //window.addEventListener('keyup',   doKeyUp,   false);
-                        });
-
-
-
-                    });
+                    loadAndStart(ctx, mazeId, textAreaBox);
 
                     intervalId = window.setInterval(render, 30);
                     window.addEventListener('keydown', doKeyDown, false);
                     window.addEventListener('keyup',   doKeyUp,   false);
-
                 }
 
                 //--------------------------------------------------------------------------------------------------

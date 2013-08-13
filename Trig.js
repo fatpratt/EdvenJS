@@ -6,13 +6,13 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 // Namespace: Trig
-if (Trig == null || typeof(Trig) != "object") {var Trig = new Object();}
+//if (Trig == null || typeof(Trig) != "object") {var Trig = new Object();}
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 // Constructor -- Gets the maze up and running by building the needed math
 // tables in memory, sets up the player's initial position and prepares memory
 // image for drawing.
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Trig = function() {
     'use strict';
     this.createTables();
@@ -51,11 +51,11 @@ Trig.prototype.fishTable = [];   // corrects fish eye view
 Trig.prototype.xStepTable = [];  // for each possible angle, here is how far X spans when Y spans by 64
 Trig.prototype.yStepTable = [];  // for each possible angle, here is how far Y spans when X spans by 64
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 // Sets up the precalculated trig and math tables in memory which are indexed
 // by angle look-ups to make things run smoothly at render time.  Tables are
 // set up to handle every possible angle.
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Trig.prototype.createTables = function() {
     'use strict';
     var i = 0;
@@ -118,16 +118,16 @@ Trig.prototype.createTables = function() {
     }
 };
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 // Convert from arc angles to radians for trig functions.
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 Trig.prototype.arcToRad = function(arcAngle) {
     'use strict';
 	return(1.0 * (arcAngle * Math.PI) / this.ANGLE180);
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-// Converts from ordinary degrees to the unique maze angle units used throughout.
+// Non-prototype function -- Converts from ordinary degrees to the unique maze angle units used throughout.
 // For example:    60 (input)   320 (output)
 // @param degreesAngle Ordinary degrees such as 60, 320, 360, etc.
 // @return  Returns the unique maze angle units such as ANGLE60, ANGLE360
@@ -136,4 +136,12 @@ Trig.degreesToMazeAngleUnits = function(degreesAngle) {
     'use strict';
     // assumes:   ANGLE60 = PROJECTIONPLANEWIDTH
     return ~~((MazeGlobals.PROJECTIONPLANEWIDTH * degreesAngle) / 60.0);
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Non-prototype function -- Converts from radians to degrees.
+//----------------------------------------------------------------------------------------------------------------------
+Trig.radToDegrees = function(angleRad) {
+    'use strict';
+    return ((180.0 * angleRad) / Math.PI);
 };

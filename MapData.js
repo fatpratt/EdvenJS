@@ -1,6 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // Contains the data which defines the walls of the map.  Essentially this map represents an aerial
-// view of the maze showing which blocks are walls and which are open spaces.
+// view of the maze showing which blocks are walls and which are open spaces.  MapData also contains
+// a collection of images associated with the various walls of the maze.
 //
 // The routines here that set object state can be time consuming so listener callback notification
 // patterns are used to keep the caller informed.  To create and use a MapData object, you must
@@ -30,7 +31,7 @@ MapData = function(document, mazeId, textAreaBox) {
     this.wallCanvasImgs = {};   // associative array of wall images
                                 // ... think of this as a map of images indexed by base36 number
 
-    // Here is the arial view or map of the maze with initial values.
+    // Here is the arial view or map of the maze with initial values for demo purposes.
     // 1 represents walls and 0 represents open spaces.
     // These are default values which change as data is read in from the WallData.txt file.
     this.mapData = ['1','1','1','1','1','1','1','1',
@@ -45,7 +46,9 @@ MapData = function(document, mazeId, textAreaBox) {
 
 MapData.prototype.MAP_DATA_FILE = "WallData.txt";
 MapData.prototype.mapWidth = 8;
+MapData.prototype.mapWidthShift = 3;
 MapData.prototype.mapHeight = 8;
+MapData.prototype.numWallImgs = 0;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Loads and parses the MapData file.
@@ -150,6 +153,8 @@ MapData.parseMapData = function(that, data) {
         cleanLine = cleanLine.toLowerCase();
         completeFile += cleanLine;
     }
+
+    console.log('num lines in map file is: ' + lineNum);
 
     if (that.mapWidth != -1) {      // -1 indicates something is messed  up
         that.mapHeight = lineNum;

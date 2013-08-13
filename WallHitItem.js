@@ -5,8 +5,13 @@
 // @author brianpratt
 //------------------------------------------------------------------------------
 
+// Namespace: WallHitItem
+if (WallHitItem == null || typeof(WallHitItem) != "object") {var WallHitItem = new Object();}
+
+//------------------------------------------------------------------------------
 // constructor
-function WallHitItem(hitType, gridLine, intersection, castArc){
+//------------------------------------------------------------------------------
+WallHitItem = function (hitType, gridLine, intersection, castArc){
     'use strict';
     this.hitType = hitType;           // this should be HORIZ_HIT or VERT_HIT
     this.gridLine = gridLine;         // int is okay here because it is always even multiple of 64

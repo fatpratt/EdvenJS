@@ -73,6 +73,17 @@ MazeConfig.prototype.loadConfigFile = function(callBackFunction) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// If the coordinates are inside the trap then this function returns the trap, otherwise return null.
+//----------------------------------------------------------------------------------------------------------------------
+MazeConfig.prototype.insideATrap = function(x, y) {
+    for (var i = 0; i < this.traps.length; i++) {
+        var curTrap = this.traps[i];
+        if (curTrap.insideThisTrap(x, y)) return curTrap;
+    }
+    return null;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 // After all the information is read in from file, this method is called by maze routines
 // to get the destination specified by number.
 //----------------------------------------------------------------------------------------------------------------------

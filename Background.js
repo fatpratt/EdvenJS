@@ -12,12 +12,12 @@ if (Background == null || typeof(Background) != "object") {var Background = new 
 Background = function(canvasContext) {
     'use strict';
     this.memPixels = canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
-    this.createGradientBackground();
+//    this.createGradientBackground();
 };
 
 Background.prototype.backgroundFile = "";
-Background.prototype.isBackgroundFromFile = false;
-Background.prototype.isBackgroundFromRGB = true;
+Background.prototype.backgroundFromFile = false;
+Background.prototype.backgroundFromRGB = true;
 
 Background.prototype.memPixels = [];
 Background.prototype.skyRed = 40;
@@ -43,8 +43,8 @@ Background.prototype.setBackgroundFromDest = function(dest) {
     }
 
     this.backgroundFile = dest.backgroundFile;
-    this.isBackgroundFromFile = dest.isBackgroundFromFile;
-    this.isBackgroundFromRGB = dest.isBackgroundFromRGB;
+    this.backgroundFromFile = dest.backgroundFromFile;
+    this.backgroundFromRGB = dest.backgroundFromRGB;
 
     this.skyRed = dest.skyRed;
     this.skyGreen = dest.skyGreen;

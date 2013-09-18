@@ -65,6 +65,8 @@ Maze.prototype.clipper = [];          // clipping array tracking wall distances 
 Maze.prototype.playerXDir = 0.0;	 // always equal to cosTable[playerArc];
 Maze.prototype.playerYDir = 0.0;     // always eqal to sinTable[playerArc];
 
+Maze.prototype.curTrap = null;       // current Trap object - we hold on to this just for the message info
+
 Maze.prototype.SLICE_WIDTH = 1;      // width of vertical slice drawn
 
 Maze.prototype.mapData = null;
@@ -482,6 +484,44 @@ Maze.prototype.moveBackward = function() {
 };
 
 //------------------------------------------------------------------------------
+// Check position to see if we are in a trap zone, if so, go to specified
+// destination or perform the specified action.  Returns true if we are inside
+// a trap, otherwise returns false.
+//------------------------------------------------------------------------------
+Maze.prototype.checkTraps = function(x, y) {
+    var oldTrap = this.curTrap;
+    this.curTrap = this.mazeConfig.insideATrap(x, y);
+    if (this.curTrap == null) return false;
+    if (this.curTrap == oldTrap) return true;  // is still in the same old trap don't do everything all over again
+
+    // go to a desination if available
+    if (this.curTrap.usingDest) {
+        var newDest = this.mazeConfig.advanceToDest(this.curTrap.gotoDest);
+        if (newDest == null) return true;
+
+        this.curDest = newDest;
+
+        // if new destination has a new background, update background accordingly
+        if (!newDest.useExistingBackground) {
+            this.background.setBackgroundFromDest(this.curDest);
+        }
+
+        this.playerX = this.curDest.xPos;
+        this.playerY = this.curDest.yPos;
+
+        // sometimes maze designer wants to keep player's current angle after advancing
+        if (!this.curDest.useExistingAngle()) {
+            this.playerArc = this.curDest.angle;
+            this.playerXDir = this.trig.cosTable[fPlayerArc];
+            this.playerYDir = this.trig.sinTable[fPlayerArc];
+        }
+    }
+    return true;
+};
+
+
+
+//------------------------------------------------------------------------------
 // Attempts a move to a new position checking to make sure we are not moving
 // inside a wall.
 //------------------------------------------------------------------------------
@@ -494,6 +534,7 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
     if (mapIndex < (this.mapData.mapHeight << this.mapData.mapWidthShift) && !this.mapData.isWall(mapIndex)) {
         this.playerX = newPlayerX;
         this.playerY = newPlayerY;
+        this.checkTraps(this.playerX, this.playerY);
         return;
     }
 
@@ -503,6 +544,7 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
     mapIndex = this.mapData.convertPointToMapPos(xGridIndex, yGridIndex);
     if (mapIndex < (this.mapData.mapHeight << this.mapData.mapWidthShift) && !this.mapData.isWall(mapIndex)) {
         this.playerX = newPlayerX;
+        this.checkTraps(this.playerX, this.playerY);
         return;
     }
 
@@ -512,6 +554,7 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
     mapIndex = this.mapData.convertPointToMapPos(xGridIndex, yGridIndex);
     if (mapIndex < (this.mapData.getMapHeight << this.mapData.mapWidthShift) && !this.mapData.isWall(mapIndex)) {
         this.playerY = newPlayerY;
+        this.checkTraps(this.playerX, this.playerY);
         return;
     }
 };

@@ -35,7 +35,7 @@ Maze = function(canvasContext, mapData, propData, mazeConfig) {
     this.playerY = this.curDest.yPos;
     this.playerArc = this.curDest.angle;
     this.background = new Background(canvasContext);
-    this.background.setBackgroundFromDest(this.curDest);
+    this.background.setBackgroundFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
 
     // create image as buffer for drawing
 	this.memPixels = this.canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
@@ -503,7 +503,7 @@ Maze.prototype.checkTraps = function(x, y) {
 
         // if new destination has a new background, update background accordingly
         if (!newDest.useExistingBackground) {
-            this.background.setBackgroundFromDest(this.curDest);
+            this.background.setBackgroundFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
         }
 
         this.playerX = this.curDest.xPos;

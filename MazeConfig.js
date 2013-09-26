@@ -137,7 +137,7 @@ MazeConfig.prototype.getTrap = function(num, mapWidth, mapHeight, numDests) {
 
     // -- overlay --
 
-    trap.overlayFile.usingOverlay = false;
+    trap.usingOverlay = false;
     trap.overlayFile = this.iniObj[section]["Overlay"];
     if (trap.overlayFile == null) trap.overlayFile = "";
     trap.usingOverlay = (trap.overlayFile.length > 0);
@@ -194,7 +194,8 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
 
     // ----- gather background information ------
 
-    dest.backgroundFile = this.iniObj[section]["Background"];
+    dest.backgroundFile = this.iniObj[section]["BackGround"];
+    if (dest.backgroundFile == null || dest.backgroundFile.length <= 0) dest.backgroundFile = this.iniObj[section]["Background"];
     if (dest.backgroundFile == null || dest.backgroundFile.length <= 0) dest.backgroundFile = "";
     dest.backgroundFromFile = (dest.backgroundFile.length > 0);
     dest.backgroundFromRGB = (!(dest.backgroundFromFile));  // no file specified so assumed RGB
@@ -252,10 +253,10 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
         dest.groundBlueStep  = groundBlueStep  == MISSING_VALUE ? 1 : groundBlueStep;
     }
 
-    // TODO: check for the existence of a background file and log a message if missing... implement later
-    //if (dest.backgroundFromFile) {
-
-    //}
+    if (dest.backgroundFromFile) {
+        dest.useExistingBackground = false;
+        // TODO: check for the existence of a background file and log a message if missing... implement later
+    }
 
     // if we are getting the first destination, then we do some additional checking
     if (num == 0) {

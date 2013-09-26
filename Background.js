@@ -12,7 +12,6 @@ if (Background == null || typeof(Background) != "object") {var Background = new 
 Background = function(canvasContext) {
     'use strict';
     this.memPixels = canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
-//    this.createGradientBackground();
 };
 
 Background.prototype.backgroundFile = "";
@@ -36,11 +35,14 @@ Background.prototype.groundBlueStep = 1;
 //--------------------------------------------------------------------------------------------------
 //  Sets background state based upon the destination object passed in.
 //--------------------------------------------------------------------------------------------------
-Background.prototype.setBackgroundFromDest = function(dest) {
+Background.prototype.setBackgroundFromDest = function(document, mazeId, dest) {
     'use strict';
     if (dest.useExistingBackground) {
         console.log('Background.js: programmer error... check useExistingBackground property before calling createBackgroundFromDest(). ');
     }
+
+    this.document = document;
+    this.mazeId = mazeId;
 
     this.backgroundFile = dest.backgroundFile;
     this.backgroundFromFile = dest.backgroundFromFile;
@@ -64,9 +66,31 @@ Background.prototype.setBackgroundFromDest = function(dest) {
     if (this.backgroundFromRGB) {
         this.createGradientBackground();
     }
-    // TODO: implement the following code later
-    //if (this.backgroundFromFile) {
-    //}
+    if (this.backgroundFromFile) {
+        this.createBackgroundFromFile();
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+// Creates a background based upon image.
+//--------------------------------------------------------------------------------------------------
+Background.prototype.createBackgroundFromFile = function() {
+    var imageCanvas = new ImageCanvas(this.document, this.mazeId, this.backgroundFile,
+        MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
+    var that = this;
+    imageCanvas.loadFile(function(statusGood, message) {
+        if (statusGood === true) {
+            for (var row = 0; row < (MazeGlobals.PROJECTIONPLANEHEIGHT); row++) {
+                for (var col = 0; col < MazeGlobals.PROJECTIONPLANEWIDTH; col++) {
+                    var index = (col + row * MazeGlobals.PROJECTIONPLANEWIDTH) * 4;
+                    var red = imageCanvas.imageData.data[index + 0];
+                    var green = imageCanvas.imageData.data[index + 1];
+                    var blue = imageCanvas.imageData.data[index + 2];
+                    that.setPixel(col, row, red, green, blue);
+                }
+            }
+        } else console.log(message);
+    });
 };
 
 //--------------------------------------------------------------------------------------------------

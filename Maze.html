@@ -149,16 +149,17 @@
                                     return;
                                 }
                                 propData.loadAssociatedImages(function(statusGood2, message2) {
-                                    if (statusGood2) console.log('Maze.html: successfully loaded associated prop image files');
-                                    else {
+                                    if (statusGood2) {
+                                        console.log('Maze.html: successfully loaded associated prop image files');
+                                        maze = new Maze(ctx, mapData, propData, mazeConfig);       // happy path
+                                        maze.renderOneFrame();
+                                    } else {
                                         textAreaBox.dumpError('error unable to load associated images: ' + message2);
                                         return;
                                     }
                                 });
                             });
 
-                            maze = new Maze(ctx, mapData, propData, mazeConfig);
-                            maze.renderOneFrame();
                         });
                     });
                 };

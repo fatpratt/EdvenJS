@@ -137,7 +137,6 @@ MazeConfig.prototype.getTrap = function(num, mapWidth, mapHeight, numDests) {
 
     // -- overlay --
 
-    trap.usingOverlay = false;
     trap.overlayFile = this.iniObj[section]["Overlay"];
     if (trap.overlayFile == null) trap.overlayFile = "";
     trap.usingOverlay = (trap.overlayFile.length > 0);

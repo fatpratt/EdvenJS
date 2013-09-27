@@ -37,6 +37,8 @@ Maze = function(canvasContext, mapData, propData, mazeConfig) {
     this.background = new Background(canvasContext);
     this.background.setBackgroundFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
 
+    this.overlay = new Overlay(canvasContext);
+
     // create image as buffer for drawing
 	this.memPixels = this.canvasContext.createImageData(MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
 
@@ -75,7 +77,8 @@ Maze.prototype.mazeConfig = null;
 Maze.prototype.canvasContext = null;  // screen drawing canvas context
 Maze.prototype.memPixels = null;   // temp buffer for building image
 
-Maze.prototype.background = null;     // holds background pixels
+Maze.prototype.background = null;   // holds background pixels
+Maze.prototype.overlay = null;      // holds overlay pixels
 
 //------------------------------------------------------------------------------
 // Sets a pixel in the image data buffer based upon the x and y
@@ -355,6 +358,10 @@ Maze.prototype.renderOneFrame = function() {
         this.castProp(this.propHitItems[i]);
     }
 
+    if (this.curTrap != null && this.curTrap.usingOverlay) {
+        this.overlay.copyOverlayTo(this.memPixels);
+    }
+
     this.paint();
 };
 
@@ -493,6 +500,10 @@ Maze.prototype.checkTraps = function(x, y) {
     this.curTrap = this.mazeConfig.insideATrap(x, y);
     if (this.curTrap == null) return false;
     if (this.curTrap == oldTrap) return true;  // is still in the same old trap don't do everything all over again
+
+    if (this.curTrap.usingOverlay) {
+        this.overlay.setOverlayFromTrap(this.mazeConfig.document, this.mazeConfig.mazeId, this.curTrap);
+    }
 
     // go to a desination if available
     if (this.curTrap.usingDest) {

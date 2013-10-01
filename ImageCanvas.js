@@ -8,15 +8,21 @@
 if (ImageCanvas == null || typeof(ImageCanvas) != "object") {var ImageCanvas = new Object();}
 
 //----------------------------------------------------------------------------------------------------------------------
-// Constructor
+// Constructor - when width and height params are omitted, we use the file to dictate size.
 //----------------------------------------------------------------------------------------------------------------------
 ImageCanvas = function(document, mazeId, fileName, width, height){
     'use strict';
+    this.fileDictatesSize = false;
+    if (arguments.length == 3) {       // width and height omitted
+        this.fileDictatesSize = true;
+    }
     this.document = document;
     this.mazeId = mazeId;
     this.fileName = fileName;
-    this.width = width;
-    this.height = height;
+    this.width = width;     // expected width
+    this.height = height;   // expected height
+    this.fileWidth = 0;     // real width reported from image file
+    this.fileHeight = 0;    // real width reported from image file
 
     this.canvas = null;
     this.context = null;
@@ -46,6 +52,14 @@ ImageCanvas.prototype.loadFile = function(callBackFunction) {
 
     // image on load inline callback
     this.image.onload = function() {
+         console.log("ImageCanvas.js - Load Image: " + MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/" + that.fileName);
+
+        that.fileWidth = this.width;    // onload will provide real width and height from file
+        that.fileHeight = this.height;
+        if (that.fileDictatesSize) {
+            that.width = that.fileWidth;
+            that.height = that.fileHeight;
+        }
         that.canvas.width = that.width;
         that.canvas.height = that.height;
         that.canvas.style.width = that.width + "px";
@@ -70,7 +84,6 @@ ImageCanvas.prototype.loadFile = function(callBackFunction) {
         if (callBackPresent) callBackFunction(false, "File not found: " + MazeGlobals.MAZE_DIR + "/" + that.mazeId + "/" + that.fileName);
     };
 
-    console.log("ImageCanvas.js - Load Image: " + MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName);
     this.image.src = MazeGlobals.MAZE_DIR + "/" + this.mazeId + "/" + this.fileName;
 }
 

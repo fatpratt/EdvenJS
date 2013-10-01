@@ -36,6 +36,8 @@ Maze = function(canvasContext, mapData, propData, mazeConfig) {
     this.playerArc = this.curDest.angle;
     this.background = new Background(canvasContext);
     this.background.setBackgroundFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
+    this.landscape = new Landscape(canvasContext);
+    this.landscape.setLandscapeFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
 
     this.overlay = new Overlay(canvasContext);
 
@@ -79,6 +81,7 @@ Maze.prototype.memPixels = null;   // temp buffer for building image
 
 Maze.prototype.background = null;   // holds background pixels
 Maze.prototype.overlay = null;      // holds overlay pixels
+Maze.prototype.landscape = null;    // holds landscape pixels
 
 //------------------------------------------------------------------------------
 // Sets a pixel in the image data buffer based upon the x and y
@@ -306,6 +309,33 @@ Maze.prototype.castProp = function(propHit) {
 };
 
 //------------------------------------------------------------------------------
+// Draws the landscape if we are casting within the right range.
+//------------------------------------------------------------------------------
+Maze.prototype.drawLandscape = function(castArc, castColumn) {
+    'use strict';
+    if (!this.curDest.usingALandscape) return;
+
+    var offSetFromTop = this.curDest.landscapeOffsetFromTop;
+    var offSetArc = this.curDest.landscapeStartAngle;
+    var width = this.landscape.width;
+    var height = this.landscape.height;
+    var pixels = this.landscape.memPixels;
+
+    if (castArc >= offSetArc && castArc < offSetArc + width) {
+        for (var y = 0; y < height; y++) {
+            var pixelPosition = ~~(width * y + (castArc - offSetArc)) * 4;
+            var red = pixels.data[pixelPosition + 0];
+            var green = pixels.data[pixelPosition + 1];
+            var blue = pixels.data[pixelPosition + 2];
+            var alpha = pixels.data[pixelPosition + 3];
+            if (alpha != 0) {    // if not transparent
+                this.setPixel(castColumn, offSetFromTop + y, red, green, blue)
+            }
+        }
+    }
+};
+
+//------------------------------------------------------------------------------
 // Draws one complete frame starting with the background then each vertical
 // line on the projection plane is casted and drawn from left to right covering
 // 60 degrees of the players field of vision.
@@ -339,6 +369,7 @@ Maze.prototype.renderOneFrame = function() {
 		    var closestHit = determineClosestHit(horizWallHitItem, vertWallHitItem);
 		    if (closestHit.distToItem <= -0.0)   // -0.0 happens sometimes and must be changed
 			    closestHit.distToItem = 1.0;
+			this.drawLandscape(castArc, castColumn);
 		    this.drawWallSlice(castColumn, closestHit);
 	    }
 
@@ -517,11 +548,16 @@ Maze.prototype.checkTraps = function(x, y) {
             this.background.setBackgroundFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
         }
 
+        // if new destination has a landscape, update accordingly
+        if (!newDest.useExistingLandscape) {
+            this.landscape.setLandscapeFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
+        }
+
         this.playerX = this.curDest.xPos;
         this.playerY = this.curDest.yPos;
 
         // sometimes maze designer wants to keep player's current angle after advancing
-        if (!this.curDest.useExistingAngle()) {
+        if (!this.curDest.useExistingAngle) {
             this.playerArc = this.curDest.angle;
             this.playerXDir = this.trig.cosTable[fPlayerArc];
             this.playerYDir = this.trig.sinTable[fPlayerArc];
@@ -529,8 +565,6 @@ Maze.prototype.checkTraps = function(x, y) {
     }
     return true;
 };
-
-
 
 //------------------------------------------------------------------------------
 // Attempts a move to a new position checking to make sure we are not moving

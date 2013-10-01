@@ -40,7 +40,7 @@ Overlay.prototype.setOverlayFromTrap = function(document, mazeId, trap) {
 };
 
 //--------------------------------------------------------------------------------------------------
-// Creates a overlay based upon image.
+// Creates an overlay based upon image.
 //--------------------------------------------------------------------------------------------------
 Overlay.prototype.createOverlayFromFile = function() {
     var imageCanvas = new ImageCanvas(this.document, this.mazeId, this.overlayFile,

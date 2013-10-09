@@ -39,7 +39,7 @@ MazeConfig.prototype.loadConfigFile = function(callBackFunction) {
     var that = this;
     iniFile.loadFile(function(statusGood, message) {
         if (!statusGood) {
-            this.textAreaBox.dumpError('error: ' + message);
+            that.textAreaBox.dumpError('error: ' + message);
             if (callBackPresent) callBackFunction(false, message);
             return;
         }

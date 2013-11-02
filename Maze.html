@@ -29,7 +29,6 @@
 
         <script type="text/javascript">
             var intervalId = null;
-            var maze = null;
 
             function changeMaze() {
                 var canvasElements = document.getElementById('targetCanvasDiv');
@@ -38,7 +37,6 @@
                 }
                 if (intervalId != null) window.clearInterval(intervalId);
                 intervalId = null;
-                maze = null;
                 var mazeLoader = new MazeLoader();
                 mazeLoader.init();
             }

@@ -42,12 +42,6 @@ var loadDataFileCallBack = function(statusGood, message) {
 MazeLoader = function() {
 };
 
-MazeLoader.prototype.upArrowEvent = false;
-MazeLoader.prototype.downArrowEvent = false;
-MazeLoader.prototype.leftArrowEvent = false;
-MazeLoader.prototype.rightArrowEvent = false;
-MazeLoader.prototype.courtesyCnt = 0;
-
 //--------------------------------------------------------------------------------------------------
 // Creates and returns canvas.
 //--------------------------------------------------------------------------------------------------
@@ -115,93 +109,25 @@ MazeLoader.prototype.init = function() {
 
     this.loadAndStart(mazeId);
 
-    intervalId = window.setInterval(this.render, 30);
-    window.addEventListener('keydown', this.doKeyDown, false);
-    window.addEventListener('keyup',   this.doKeyUp,   false);
+    KeyboardController({
+        37: function() {            // left
+            MazeLoader.maze.rotateLeft();
+            MazeLoader.maze.renderOneFrame();
+        },
+        38: function() {            // up
+            MazeLoader.maze.moveForward();
+            MazeLoader.maze.renderOneFrame();
+        },
+        39: function() {            // right
+            MazeLoader.maze.rotateRight();
+            MazeLoader.maze.renderOneFrame();
+        },
+        40: function() {            // down
+            MazeLoader.maze.moveBackward();
+            MazeLoader.maze.renderOneFrame();
+        }
+    }, 100);
 };
 
-//--------------------------------------------------------------------------------------------------
-// On key down event.
-//--------------------------------------------------------------------------------------------------
-MazeLoader.prototype.doKeyDown = function(evt) {
-    if (MazeLoader.maze == null) return;
-    switch (evt.keyCode) {
-        case 38: // Up arrow was pressed
-            this.upArrowEvent = true;
-            break;
-        case 40: // Down arrow was pressed
-            this.downArrowEvent = true;
-            break;
-        case 37: // Left arrow was pressed
-            this.leftArrowEvent = true;
-            break;
-        case 39: // Right arrow was pressed
-            this.rightArrowEvent = true;
-            break;
-    }
-};
-
-//--------------------------------------------------------------------------------------------------
-// On key up event.
-//--------------------------------------------------------------------------------------------------
-MazeLoader.prototype.doKeyUp = function(evt) {
-    if (MazeLoader.maze == null) return;
-    switch (evt.keyCode) {
-        case 38: // Up arrow was released
-            this.upArrowEvent = false;
-            break;
-        case 40: // Down arrow was released
-            this.downArrowEvent = false;
-            break;
-        case 37: // Left arrow was released
-            this.leftArrowEvent = false;
-            break;
-        case 39: // Right arrow was released
-            this.rightArrowEvent = false;
-            break;
-    }
-};
-
-//--------------------------------------------------------------------------------------------------
-// Render a frame.
-//--------------------------------------------------------------------------------------------------
-MazeLoader.prototype.render = function() {
-    if (MazeLoader.maze == null) return;
-
-    if (this.upArrowEvent) {
-        MazeLoader.maze.moveForward();
-        MazeLoader.maze.renderOneFrame();
-        this.upArrowEvent = false;
-        this.courtesyCnt = 0;
-    }
-
-    if (this.downArrowEvent) {
-        MazeLoader.maze.moveBackward();
-        MazeLoader.maze.renderOneFrame();
-        this.downArrowEvent = false;
-        this.courtesyCnt = 0;
-    }
-
-    if (this.leftArrowEvent) {
-        MazeLoader.maze.rotateLeft();
-        MazeLoader.maze.renderOneFrame();
-        this.leftArrowEvent = false;
-        this.courtesyCnt = 0;
-    }
-
-    if (this.rightArrowEvent) {
-        MazeLoader.maze.rotateRight();
-        MazeLoader.maze.renderOneFrame();
-        this.rightArrowEvent = false;
-        this.courtesyCnt = 0;
-    }
-
-    // every once in a while you need to do a courtesy render even if there are no events
-    if (this.courtesyCnt == 15) {     // assumes this function is called on a regular interval
-        MazeLoader.maze.renderOneFrame();
-        this.courtesyCnt = 0;
-    }
-    this.courtesyCnt++;
-};
 
 

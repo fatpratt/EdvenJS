@@ -121,6 +121,51 @@ PropData.prototype.convertPointToMapPos = function(x, y) {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+// Loads each and every image associated with the PropData file.
+//   callBackFunction - Function to inform the caller that we are done loading.
+//----------------------------------------------------------------------------------------------------------------------
+PropData.prototype.loadAssociatedImages = function(callBackFunction) {
+    'use strict';
+    var callBackPresent = (typeof(callBackFunction) != "undefined");
+    var curImageNum = 1;
+    var that = this;
+    var loadImageCanvasFunction = function() {
+
+        var b36 = MathUtils.base10ToBase36(curImageNum);
+        var imageCanvas = new ImageCanvas(that.document, that.mazeId, "Prop" + b36 + ".gif", 64, 64);
+
+        // this is a loop through recursion and callback
+        // ... once an image is loaded this inline function below is called (as a callback)
+        // ... we then increment and move to the next image through recursion
+        imageCanvas.loadFile(function(statusGood, message) {
+            if (statusGood === false) console.log(message);
+
+            that.propCanvasImgs[b36] = imageCanvas; // save this image to a map of images indexed by base36 number
+            curImageNum++;                          // move on to next image
+            if (curImageNum > that.numPropImgs){
+                if (callBackPresent) callBackFunction(true);    // we are all done ... inform the listener
+            } else {
+                loadImageCanvasFunction();     // recursion continues until all images are encountered
+            }
+        });
+    };
+    loadImageCanvasFunction();      // get the ball rolling
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Returns the ImageCanvas associated with the specified ch.
+//----------------------------------------------------------------------------------------------------------------------
+PropData.prototype.getCanvasImage = function(ch) {
+    'use strict';
+    if (this.propCanvasImgs.hasOwnProperty(ch)) {
+        return this.propCanvasImgs[ch];
+    }
+    return null;
+};
+
+//------------------------------------------ Non-Prototype Functions -----------------------------------------------
+
+//----------------------------------------------------------------------------------------------------------------------
 // Parses the data from the PropData file
 //----------------------------------------------------------------------------------------------------------------------
 PropData.parsePropData = function(that, data) {
@@ -195,48 +240,4 @@ PropData.isLineLengthGood = function(width)  {
     }
     return true;
 };
-
-//----------------------------------------------------------------------------------------------------------------------
-// Loads each and every image associated with the PropData file.
-//   callBackFunction - Function to inform the caller that we are done loading.
-//----------------------------------------------------------------------------------------------------------------------
-PropData.prototype.loadAssociatedImages = function(callBackFunction) {
-    'use strict';
-    var callBackPresent = (typeof(callBackFunction) != "undefined");
-    var curImageNum = 1;
-    var that = this;
-    var loadImageCanvasFunction = function() {
-
-        var b36 = MathUtils.base10ToBase36(curImageNum);
-        var imageCanvas = new ImageCanvas(that.document, that.mazeId, "Prop" + b36 + ".gif", 64, 64);
-
-        // this is a loop through recursion and callback
-        // ... once an image is loaded this inline function below is called (as a callback)
-        // ... we then increment and move to the next image through recursion
-        imageCanvas.loadFile(function(statusGood, message) {
-            if (statusGood === false) console.log(message);
-
-            that.propCanvasImgs[b36] = imageCanvas; // save this image to a map of images indexed by base36 number
-            curImageNum++;                          // move on to next image
-            if (curImageNum > that.numPropImgs){
-                if (callBackPresent) callBackFunction(true);    // we are all done ... inform the listener
-            } else {
-                loadImageCanvasFunction();     // recursion continues until all images are encountered
-            }
-        });
-    };
-    loadImageCanvasFunction();      // get the ball rolling
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-// Returns the ImageCanvas associated with the specified ch.
-//----------------------------------------------------------------------------------------------------------------------
-PropData.prototype.getCanvasImage = function(ch) {
-    'use strict';
-    if (this.propCanvasImgs.hasOwnProperty(ch)) {
-        return this.propCanvasImgs[ch];
-    }
-    return null;
-};
-
 

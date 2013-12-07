@@ -9,10 +9,11 @@ if (Questions == null || typeof(Questions) != "object") {var Questions = new Obj
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-Questions = function(document, mazeId){
+Questions = function(document, mazeId, textAreaBox){
     'use strict';
     this.document = document;
     this.mazeId = mazeId;
+    this.textAreaBox = textAreaBox;
     this.numQuestions = 0;
     this.questions = [];
     this.iniObj = {};   // properties mirroring properties from the ini file
@@ -51,8 +52,9 @@ Questions.prototype.loadQuestionsFile = function(callBackFunction) {
 
         for (var i = 0; i < that.numQuestions; i++) {
             var question = that.getQuestion(i);
-            that.questions.put(question);    // make questions accessible by id
+            that.questions.push(question);    // make questions accessible by id
         }
+        if (callBackPresent) callBackFunction(true);
     });
 };
 
@@ -84,6 +86,8 @@ Questions.prototype.getQuestion = function(num) {
     question.yRelAnswerC = parseInt(this.iniObj[strSection]["YRelAnswerC"], 10);
     question.xRelAnswerD = parseInt(this.iniObj[strSection]["XRelAnswerD"], 10);
     question.yRelAnswerD = parseInt(this.iniObj[strSection]["YRelAnswerD"], 10);
+
+    return question;
 };
 
 

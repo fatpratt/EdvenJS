@@ -22,7 +22,14 @@ var questionPosDataLoadAssociatedImagesCallBack = function(statusGood, message) 
     'use strict';
     if (statusGood) {
         console.log('MazeLoader.js: successfully loaded Questions pos data images ');
-        MazeLoader.maze = new Maze(MazeLoader.ctx, MazeLoader.mapData, MazeLoader.propData, MazeLoader.mazeConfig);       // happy path
+
+        MazeLoader.maze = new Maze(MazeLoader.ctx,           // happy path... load maze
+            MazeLoader.mapData,
+            MazeLoader.propData,
+            MazeLoader.mazeConfig,
+            MazeLoader.questions,
+            MazeLoader.questionPosData
+        );
         MazeLoader.maze.renderOneFrame();
     } else {
         MazeLoader.textAreaBox.dumpError('MazeLoader.js: successfully loaded Questions pos data images: ' + message);
@@ -44,28 +51,7 @@ var loadQuestionsCallback = function(statusGood, message) {
              MazeLoader.mapData.mapWidthShift
          );
          MazeLoader.questionPosData.loadDataFile(function(statusGood2, message2) {
-             console.log('MazeLoader.js: question pos file load status:' + statusGood2 + message2);
-/***
-             var questionItem = MazeLoader.questionPosData.getQuestionItemTypeAt(100, MazeLoader.questions, "0");
-             console.log('question item at 100---->' + questionItem);
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAtSpecial(101, MazeLoader.questions, "0");
-             console.log('question item special at 101---->' + questionItem);
-
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAt(1183, MazeLoader.questions, "0");
-             console.log('question item at 1183---->' + questionItem);
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAtSpecial(1183, MazeLoader.questions, "0");
-             console.log('question item special at 1183---->' + questionItem);
-
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAt(3553, MazeLoader.questions, "0");
-             console.log('question item at 3553---->' + questionItem);
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAtSpecial(3553, MazeLoader.questions, "0");
-             console.log('question item special at 3553---->' + questionItem);
-
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAt(4193, MazeLoader.questions, "0");
-             console.log('question item at 4193---->' + questionItem);
-             questionItem = MazeLoader.questionPosData.getQuestionItemTypeAtSpecial(4193, MazeLoader.questions, "0");
-             console.log('question item special at 4193---->' + questionItem);
-****/
+             console.log('MazeLoader.js: question pos file load status:' + statusGood2 + " " + message2);
              MazeLoader.questionPosData.loadAssociatedImages(questionPosDataLoadAssociatedImagesCallBack);
          });
 

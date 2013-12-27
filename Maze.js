@@ -20,12 +20,14 @@ if (Maze == null || typeof(Maze) != "object") {var Maze = new Object();}
 // tables in memory, sets up the player's initial position and prepares memory
 // image for drawing.
 //------------------------------------------------------------------------------
-Maze = function(canvasContext, mapData, propData, mazeConfig) {
+Maze = function(canvasContext, mapData, propData, mazeConfig, questions, questionPosData) {
     'use strict';
 	this.canvasContext = canvasContext;
 	this.mapData = mapData;
 	this.propData = propData;
 	this.mazeConfig = mazeConfig;
+    this.questions = questions;
+    this.questionPosData = questionPosData;
 
     //this.createTables();
     this.trig = new Trig();
@@ -75,13 +77,16 @@ Maze.prototype.SLICE_WIDTH = 1;      // width of vertical slice drawn
 
 Maze.prototype.mapData = null;
 Maze.prototype.propData = null;
+Maze.prototype.questions = null;
+Maze.prototype.questionPosData = null;
 Maze.prototype.mazeConfig = null;
 Maze.prototype.canvasContext = null;  // screen drawing canvas context
-Maze.prototype.memPixels = null;   // temp buffer for building image
+Maze.prototype.memPixels = null;      // temp buffer for building image
 
 Maze.prototype.background = null;   // holds background pixels
 Maze.prototype.overlay = null;      // holds overlay pixels
 Maze.prototype.landscape = null;    // holds landscape pixels
+Maze.prototype.curQuestion = '0';   // current question we are on... '0' means no question at all
 
 //------------------------------------------------------------------------------
 // Sets a pixel in the image data buffer based upon the x and y
@@ -170,6 +175,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 			// STEP THREE -- convert to the small grid coordinates and see if we are on a wall
 
+            var questItemTypeHit = '0';    // type of question item hit, '0' denotes no hit
 			var mapPos = horizItemHit.calcAndSetMapPos(this.mapData);
 			horizItemHit.calcAndSetOffTheMap(this.mapData);
 			if (horizItemHit.offTheMap) {
@@ -184,7 +190,16 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
                 this.propHitItems.push(propHitItem);
             }
 
-			// if wall was hit, stop here
+            // if question item was hit, determine which item was hit, and treat it similarly
+            // to prop item hit by adding it to the prop list and keep going
+            else if (((questItemTypeHit = this.questionPosData.getQuestionItemTypeAtSpecial(mapPos, this.questions, this.curQuestion)) != '0')
+                    && (typeof this.propHitItems.findFirst(function(o) {return o.mapPos == mapPos;})) == "undefined") {
+                var questionPropHit = new QuestionHitItem(mapPos, this.trig, questItemTypeHit);
+                questionPropHit.setPropHitItemData(this.mapData, this.playerX, this.playerY, this.playerArc);
+                this.propHitItems.push(questionPropHit);
+            }
+
+            // if wall was hit, stop here
 			else if (!this.propData.isProp(mapPos) && this.mapData.isWall(horizItemHit.mapPos)) {
 				// if we know one side and one angle, we can get the hypotenuse
 				horizItemHit.distToItem = ((horizItemHit.intersection - this.playerX) * this.trig.iCosTable[castArc]);
@@ -240,6 +255,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 	else {
 		distToNextYIntersection = this.trig.yStepTable[castArc];
 		while (true) {
+            var questItemTypeHit = '0';    // type of question item hit, '0' denotes no hit
 			var mapPos = vertItemHit.calcAndSetMapPos(this.mapData);
 			vertItemHit.calcAndSetOffTheMap(this.mapData);
 
@@ -254,7 +270,14 @@ Maze.prototype.castRayForVertHit = function(castArc) {
                 this.propHitItems.push(propHitItem);
             }
 
-			else if (!this.propData.isProp(mapPos) && this.mapData.isWall(vertItemHit.mapPos)) {
+            else if (((questItemTypeHit = this.questionPosData.getQuestionItemTypeAtSpecial(mapPos, this.questions, this.curQuestion)) != '0')
+                    && (typeof this.propHitItems.findFirst(function(o) {return o.mapPos == mapPos;})) == "undefined") {
+                var questionPropHit = new QuestionHitItem(mapPos, this.trig, questItemTypeHit);
+                questionPropHit.setPropHitItemData(this.mapData, this.playerX, this.playerY, this.playerArc);
+                this.propHitItems.push(questionPropHit);
+            }
+
+            else if (!this.propData.isProp(mapPos) && this.mapData.isWall(vertItemHit.mapPos)) {
 				vertItemHit.distToItem = ((vertItemHit.intersection - this.playerY) * this.trig.iSinTable[castArc]);
 				break;
 			}
@@ -284,10 +307,17 @@ Maze.prototype.castProp = function(propHit) {
     var propWidth = projectedPropHeight; // assumes width and height of tile are the same
 
     // grab the appropriate prop image from collection
-    var ch = this.propData.propData[propHit.mapPos]
-    if (ch == '0') return;
-    var imageCanvas = this.propData.getCanvasImage(ch);
-    if (imageCanvas == null) return;
+    var imageCanvas = this.questionPosData.getCanvasImage('?');  // initialize this to something
+    if (propHit instanceof QuestionHitItem) {  // question items hit are treated like props
+        // get '?', 'A', 'B', 'C', or 'D' and use it as an index to get pixels
+        var ch = propHit.questionItemType;
+        if (ch != '0') imageCanvas = this.questionPosData.getCanvasImage(ch);
+    } else {
+        var ch = this.propData.propData[propHit.mapPos];
+        if (ch == '0') return;
+        imageCanvas = this.propData.getCanvasImage(ch);
+        if (imageCanvas == null) return;
+    }
 
     // draw left side of prop
     var leftBound = (colMidProp - (propWidth >> 1));  // column number of left end of prop

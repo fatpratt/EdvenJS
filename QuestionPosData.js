@@ -66,7 +66,7 @@ QuestionPosData.prototype.loadDataFile = function(callBackFunction) {
             if (xmlHttp.status == 200) {
                 var rawText = xmlHttp.responseText;
                 QuestionPosData.parseQuestionPosData(that, rawText);
-                if (callBackPresent) callBackFunction(true);     // tell caller we are all done loading and all is positive
+                if (callBackPresent) callBackFunction(true, "success loading question pos data");     // tell caller we are all done loading and all is positive
             }
             if (xmlHttp.status == 404) {
                 // tell caller we are all done, but we failed to load due to file not found
@@ -248,7 +248,7 @@ QuestionPosData.prototype.loadAssociatedImages = function(callBackFunction) {
             if (statusGood === false) console.log(message);
             that.questionCanvasImgs[indexChar] = imageCanvas; // save this image to a map of images indexed by '?', 'A', 'B', 'C', or 'D'
             curImageNum++;                          // move on to next image
-            if (curImageNum > questionIndex.length){
+            if (curImageNum >= questionIndex.length){
                 if (callBackPresent) callBackFunction(true);    // we are all done ... inform the listener
             } else {
                 loadImageCanvasFunction();     // recursion continues until all images are encountered

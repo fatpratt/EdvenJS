@@ -151,10 +151,10 @@ QuestionPosData.prototype.getQuestionItemTypeAt = function(mapIndex, questions, 
     // Questions file as relative positions from the question mark.
 
     var arialNumPos = this.questionToPosMap[curQuestionChar];
-    var row = arialNumPos >> fMapWidthShift;       // convert numPos to a row column
-    var col = arialNumPos % fMapWidth;
+    var row = arialNumPos >> this.mapWidthShift;       // convert numPos to a row column
+    var col = arialNumPos % this.mapWidth;
 
-    var curQuest = questions.getQuestion(curQuestionChar);
+    var curQuest = questions.returnQuestion(curQuestionChar);
 
     var rowA = row + curQuest.yRelAnswerA;
     var rowB = row + curQuest.yRelAnswerB;

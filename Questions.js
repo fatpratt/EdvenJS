@@ -51,17 +51,17 @@ Questions.prototype.loadQuestionsFile = function(callBackFunction) {
         that.numQuestions = that.iniObj.General.NumQuestions;
 
         for (var i = 0; i < that.numQuestions; i++) {
-            var question = that.getQuestion(i);
-            that.questions.push(question);    // make questions accessible by id
+            var question = that.readQuestion(i);
+            that.questions.push(question);
         }
         if (callBackPresent) callBackFunction(true);
     });
 };
 
 //--------------------------------------------------------------------------------------------------
-// Reads the specified question information from the appropriate section of the ini file
+// Reads the specified question information from the appropriate section of the ini structure.
 //--------------------------------------------------------------------------------------------------
-Questions.prototype.getQuestion = function(num) {
+Questions.prototype.readQuestion = function(num) {
     'use strict';
 
     var question = new Question();
@@ -70,7 +70,7 @@ Questions.prototype.getQuestion = function(num) {
     question.questionNum = num;
     question.totalQuestions = this.numQuestions;
 
-    question.id       = this.iniObj[strSection]["ID"];
+    question.id       = this.iniObj[strSection]["ID"];       // note: id is usually num plus one
     question.question = this.iniObj[strSection]["Question"];
 
     question.answerA  = this.iniObj[strSection]["AnswerA"];
@@ -90,4 +90,16 @@ Questions.prototype.getQuestion = function(num) {
     return question;
 };
 
+//--------------------------------------------------------------------------------------------------
+// Gets question from questions list specified by questionId.
+//--------------------------------------------------------------------------------------------------
+Questions.prototype.returnQuestion = function(questionId) {
+    'use strict';
+    for (var i = 0; i < this.numQuestions; i++) {
+        var curQuestion = this.questions[i];
+        if (curQuestion.id == questionId) return curQuestion;
+    }
+    console.log('Questions.js: unable to find question ' + num);
+    return this.questions[0];       // error... just return any question
+};
 

@@ -597,6 +597,29 @@ Maze.prototype.checkTraps = function(x, y) {
 };
 
 //------------------------------------------------------------------------------
+// Check position to see if we are in a question item, if so, advance question
+// items.
+//------------------------------------------------------------------------------
+Maze.prototype.checkQuestions = function(mapIndex) {
+    var questionItemTypeHit = this.questionPosData.getQuestionItemTypeAt(mapIndex, this.questions, this.curQuestion);
+    if (questionItemTypeHit == '?') {
+        var questNumberHit = this.questionPosData.getValue(mapIndex);
+        if (this.curQuestion == questNumberHit) return;  // if we encountered the same question nothing changes
+        this.curQuestion = questNumberHit;  // we are now in question mode, track which question we are on
+    } else {
+        // if we are in question mode and we hit an answer, we are done with this
+        // question, go back to looking for another question
+        if ((this.curQuestion != '0')
+                && ((questionItemTypeHit == 'A')
+                || (questionItemTypeHit == 'B')
+                || (questionItemTypeHit == 'C')
+                || (questionItemTypeHit == 'D'))) {
+            this.curQuestion = '0';
+        }
+    }
+};
+
+//------------------------------------------------------------------------------
 // Attempts a move to a new position checking to make sure we are not moving
 // inside a wall.
 //------------------------------------------------------------------------------
@@ -609,6 +632,7 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
     if (mapIndex < (this.mapData.mapHeight << this.mapData.mapWidthShift) && !this.mapData.isWall(mapIndex)) {
         this.playerX = newPlayerX;
         this.playerY = newPlayerY;
+        this.checkQuestions(mapIndex);
         this.checkTraps(this.playerX, this.playerY);
         return;
     }
@@ -619,6 +643,7 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
     mapIndex = this.mapData.convertPointToMapPos(xGridIndex, yGridIndex);
     if (mapIndex < (this.mapData.mapHeight << this.mapData.mapWidthShift) && !this.mapData.isWall(mapIndex)) {
         this.playerX = newPlayerX;
+        this.checkQuestions(mapIndex);
         this.checkTraps(this.playerX, this.playerY);
         return;
     }
@@ -629,6 +654,7 @@ Maze.prototype.attemptMove = function(newPlayerX, newPlayerY) {
     mapIndex = this.mapData.convertPointToMapPos(xGridIndex, yGridIndex);
     if (mapIndex < (this.mapData.getMapHeight << this.mapData.mapWidthShift) && !this.mapData.isWall(mapIndex)) {
         this.playerY = newPlayerY;
+        this.checkQuestions(mapIndex);
         this.checkTraps(this.playerX, this.playerY);
         return;
     }

@@ -20,9 +20,10 @@ if (Maze == null || typeof(Maze) != "object") {var Maze = new Object();}
 // tables in memory, sets up the player's initial position and prepares memory
 // image for drawing.
 //------------------------------------------------------------------------------
-Maze = function(canvasContext, mapData, propData, mazeConfig, questions, questionPosData) {
+Maze = function(canvasContext, textAreaBox, mapData, propData, mazeConfig, questions, questionPosData) {
     'use strict';
 	this.canvasContext = canvasContext;
+    this.textAreaBox = textAreaBox;
 	this.mapData = mapData;
 	this.propData = propData;
 	this.mazeConfig = mazeConfig;
@@ -81,6 +82,7 @@ Maze.prototype.questions = null;
 Maze.prototype.questionPosData = null;
 Maze.prototype.mazeConfig = null;
 Maze.prototype.canvasContext = null;  // screen drawing canvas context
+Maze.prototype.textAreaBox = null;       // question text area
 Maze.prototype.memPixels = null;      // temp buffer for building image
 
 Maze.prototype.background = null;   // holds background pixels
@@ -606,6 +608,8 @@ Maze.prototype.checkQuestions = function(mapIndex) {
         var questNumberHit = this.questionPosData.getValue(mapIndex);
         if (this.curQuestion == questNumberHit) return;  // if we encountered the same question nothing changes
         this.curQuestion = questNumberHit;  // we are now in question mode, track which question we are on
+        var curQuest = this.questions.returnQuestion(this.curQuestion);
+        this.textAreaBox.dumpText(curQuest.getQuestionAnswerText());
     } else {
         // if we are in question mode and we hit an answer, we are done with this
         // question, go back to looking for another question
@@ -615,6 +619,7 @@ Maze.prototype.checkQuestions = function(mapIndex) {
                 || (questionItemTypeHit == 'C')
                 || (questionItemTypeHit == 'D'))) {
             this.curQuestion = '0';
+            this.textAreaBox.dumpText('');
         }
     }
 };

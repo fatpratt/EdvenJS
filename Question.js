@@ -32,3 +32,13 @@ Question = function() {
     this.yRelAnswerD = "";
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+// Returns question and answers text for text area box.
+//----------------------------------------------------------------------------------------------------------------------
+Question.prototype.getQuestionAnswerText = function() {
+    return this.question + '\n\n' +
+        'A. ' + this.answerA + '\n' +
+        'B. ' + this.answerB + '\n' +
+        'C. ' + this.answerC + '\n' +
+        'D. ' + this.answerD;
+};

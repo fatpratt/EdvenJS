@@ -24,6 +24,7 @@ var questionPosDataLoadAssociatedImagesCallBack = function(statusGood, message) 
         console.log('MazeLoader.js: successfully loaded Questions pos data images ');
 
         MazeLoader.maze = new Maze(MazeLoader.ctx,           // happy path... load maze
+            MazeLoader.textAreaBox,
             MazeLoader.mapData,
             MazeLoader.propData,
             MazeLoader.mazeConfig,

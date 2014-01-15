@@ -60,7 +60,7 @@ TextAreaBox.prototype.setTextClr = function(textClrStr) {
 TextAreaBox.prototype.setDisplayText = function(str) {
     'use strict';
     this.displayText = str.replace(/(\r)/gm, "");   // removes return carriage
-    this.context.font = TextAreaBox.prototype.FONT_STYLE;
+    this.context.font = this.FONT_STYLE;
     this.context.fillStyle = this.textClrStr;
     this.displayText = this.wrapLines(this.displayText, this.width - this.leftStartPoint);
 };
@@ -70,7 +70,7 @@ TextAreaBox.prototype.setDisplayText = function(str) {
 //----------------------------------------------------------------------------------------------------------------------
 TextAreaBox.prototype.render = function() {
     'use strict';
-    this.context.font = TextAreaBox.prototype.FONT_STYLE;
+    this.context.font = this.FONT_STYLE;
     this.context.fillStyle = this.textClrStr;
 
     // display one line at a time
@@ -100,7 +100,7 @@ TextAreaBox.prototype.dumpText = function(textStr) {
 TextAreaBox.prototype.dumpError = function(textStr) {
     'use strict';
     this.clear();
-    this.setTextClr(TextAreaBox.prototype.ERROR_TEXT_COLOR);
+    this.setTextClr(this.ERROR_TEXT_COLOR);
     this.setDisplayText(textStr);
     console.log(textStr);       // dump error to console, as well
     this.render();

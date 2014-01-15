@@ -40,5 +40,6 @@ Question.prototype.getQuestionAnswerText = function() {
         'A. ' + this.answerA + '\n' +
         'B. ' + this.answerB + '\n' +
         'C. ' + this.answerC + '\n' +
-        'D. ' + this.answerD;
+        'D. ' + this.answerD + '\n\n' +
+        '(Follow the path in the maze associated with the correct answer.)'
 };

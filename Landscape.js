@@ -25,7 +25,7 @@ Landscape.prototype.memPixels = [];
 //--------------------------------------------------------------------------------------------------
 // Sets landscape based upon the dest object passed in.
 //--------------------------------------------------------------------------------------------------
-Landscape.prototype.setLandscapeFromDest = function(document, mazeId, dest) {
+Landscape.prototype.setLandscapeFromDest = function(document, mazeId, dest, callBackFunction) {
     'use strict';
 
     if (!dest.usingALandscape) {
@@ -40,13 +40,15 @@ Landscape.prototype.setLandscapeFromDest = function(document, mazeId, dest) {
     this.landscapeOffsetFromTop = dest.landscapeOffsetFromTop;
     this.landscapeStartAngle = dest.landscapeStartAngle;
 
-    this.createLandscapeFromFile();
+    this.createLandscapeFromFile(callBackFunction);
 };
 
 //--------------------------------------------------------------------------------------------------
 // Creates a landscape based upon image.
 //--------------------------------------------------------------------------------------------------
-Landscape.prototype.createLandscapeFromFile = function() {
+Landscape.prototype.createLandscapeFromFile = function(callBackFunction) {
+    'use strict';
+    var callBackPresent = (typeof(callBackFunction) !== "undefined");
     var imageCanvas = new ImageCanvas(this.document, this.mazeId, this.landscapeFile);
     var that = this;
     imageCanvas.loadFile(function(statusGood, message) {
@@ -64,7 +66,11 @@ Landscape.prototype.createLandscapeFromFile = function() {
                     that.setPixel(col, row, red, green, blue, alpha);
                 }
             }
-        } else console.log(message);
+            if (callBackPresent) callBackFunction(true);    // tell caller we are all done
+        } else {
+            console.log(message);
+            if (callBackPresent) callBackFunction(false);    // tell caller we tried
+        }
     });
 };
 

@@ -20,7 +20,7 @@ if (Maze == null || typeof(Maze) != "object") {var Maze = new Object();}
 // tables in memory, sets up the player's initial position and prepares memory
 // image for drawing.
 //------------------------------------------------------------------------------
-Maze = function(canvasContext, textAreaBox, mapData, propData, mazeConfig, questions, questionPosData) {
+Maze = function(canvasContext, textAreaBox, mapData, propData, mazeConfig, questions, questionPosData, background, landscape) {
     'use strict';
 	this.canvasContext = canvasContext;
     this.textAreaBox = textAreaBox;
@@ -29,17 +29,16 @@ Maze = function(canvasContext, textAreaBox, mapData, propData, mazeConfig, quest
 	this.mazeConfig = mazeConfig;
     this.questions = questions;
     this.questionPosData = questionPosData;
+    this.background = background;
+    this.landscape = landscape;
 
-    //this.createTables();
     this.trig = new Trig();
 
     this.curDest = this.mazeConfig.advanceToDest(0);    // zero is the initial starting destination
     this.playerX = this.curDest.xPos;    // initial player position comes from first destination
     this.playerY = this.curDest.yPos;
     this.playerArc = this.curDest.angle;
-    this.background = new Background(canvasContext);
     this.background.setBackgroundFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
-    this.landscape = new Landscape(canvasContext);
     this.landscape.setLandscapeFromDest(this.mazeConfig.document, this.mazeConfig.mazeId, this.curDest);
 
     this.overlay = new Overlay(canvasContext);

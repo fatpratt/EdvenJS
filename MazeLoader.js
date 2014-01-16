@@ -1,7 +1,8 @@
 
 //----------------------------------------------------------------------------------------------------------------------
-// Gets maze up and running.  Warning: So much of the maze loading relies on asynchronous methods and callbacks,
-// so much of the code here is "callback spaghetti."
+// Gets maze up and running.  So much of the maze loading relies on a series of asynchronous methods.  Therefore much
+// of the code below is implemented as a series of callback chaining to avoid "callback spaghetti" running off into
+// the hell of the right margin.
 // @author brianpratt
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -17,6 +18,8 @@ MazeLoader.textAreaBox = null;
 MazeLoader.questions = null;
 MazeLoader.questionPosData = null;
 MazeLoader.openingCredits = null;
+MazeLoader.background = null;
+MazeLoader.landscape = null;
 MazeLoader.ctx = null;
 
 // CallBack: called when delay for showing the opening credits is complete
@@ -30,7 +33,9 @@ var openingCreditsDelayCompleteCallBack = function() {
         MazeLoader.propData,
         MazeLoader.mazeConfig,
         MazeLoader.questions,
-        MazeLoader.questionPosData
+        MazeLoader.questionPosData,
+        MazeLoader.background,
+        MazeLoader.landscape
     );
     MazeLoader.maze.renderOneFrame();
 };
@@ -49,7 +54,7 @@ var questionPosDataLoadAssociatedImagesCallBack = function(statusGood, message) 
 };
 
 // CallBack: when questions are loaded, load question pos data and associated images
-var loadQuestionsCallback = function(statusGood, message) {
+var loadQuestionsCallBack = function(statusGood, message) {
     'use strict';
     if (statusGood) {
          console.log('MazeLoader.js: successfully loaded Questions file');
@@ -72,13 +77,41 @@ var loadQuestionsCallback = function(statusGood, message) {
      }
 };
 
+// CallBack: when done priming the landscape, we load questions
+var loadLandscapeCallBack = function(statusGood) {
+    'use strict';
+    if (statusGood) {
+        console.log('MazeLoader.js: successfully primed the landscape');
+        MazeLoader.questions = new Questions(document, MazeLoader.mazeId, MazeLoader.textAreaBox);
+        MazeLoader.questions.loadQuestionsFile(loadQuestionsCallBack);
+    } else {
+        MazeLoader.textAreaBox.dumpError('error priming the landscape: ' + message);
+        return;
+    }
+};
+
+// CallBack: when done priming the background, prime the landscape
+var loadBackgroundCallBack = function(statusGood) {
+    'use strict';
+    if (statusGood) {
+        console.log('MazeLoader.js: successfully primed the background');
+        var curDest = MazeLoader.mazeConfig.advanceToDest(0);         // peek ahead at first destination to prime landscape image
+        MazeLoader.landscape = new Landscape(MazeLoader.ctx);
+        MazeLoader.landscape.setLandscapeFromDest(MazeLoader.mazeConfig.document, MazeLoader.mazeConfig.mazeId, curDest, loadLandscapeCallBack);
+    } else {
+        MazeLoader.textAreaBox.dumpError('error priming the background: ' + message);
+        return;
+    }
+};
+
 // CallBack: when associated images are loaded, load questions
 var propDataLoadAssociatedImagesCallBack = function(statusGood, message) {
     'use strict';
     if (statusGood) {
         console.log('MazeLoader.js: successfully loaded associated prop image files');
-        MazeLoader.questions = new Questions(document, MazeLoader.mazeId, MazeLoader.textAreaBox);
-        MazeLoader.questions.loadQuestionsFile(loadQuestionsCallback);
+        var curDest = MazeLoader.mazeConfig.advanceToDest(0);         // peek ahead at first destination to prime background image
+        MazeLoader.background = new Background(MazeLoader.ctx);
+        MazeLoader.background.setBackgroundFromDest(MazeLoader.mazeConfig.document, MazeLoader.mazeConfig.mazeId, curDest, loadBackgroundCallBack);
     } else {
         MazeLoader.textAreaBox.dumpError('error unable to load associated images: ' + message);
         return;

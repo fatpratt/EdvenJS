@@ -35,8 +35,9 @@ Background.prototype.groundBlueStep = 1;
 //--------------------------------------------------------------------------------------------------
 //  Sets background state based upon the destination object passed in.
 //--------------------------------------------------------------------------------------------------
-Background.prototype.setBackgroundFromDest = function(document, mazeId, dest) {
+Background.prototype.setBackgroundFromDest = function(document, mazeId, dest, callBackFunction) {
     'use strict';
+
     if (dest.useExistingBackground) {
         console.log('Background.js: programmer error... check useExistingBackground property before calling createBackgroundFromDest(). ');
     }
@@ -64,17 +65,19 @@ Background.prototype.setBackgroundFromDest = function(document, mazeId, dest) {
     this.groundBlueStep = dest.groundBlueStep;
 
     if (this.backgroundFromRGB) {
-        this.createGradientBackground();
+        this.createGradientBackground(callBackFunction);
     }
     if (this.backgroundFromFile) {
-        this.createBackgroundFromFile();
+        this.createBackgroundFromFile(callBackFunction);
     }
 };
 
 //--------------------------------------------------------------------------------------------------
 // Creates a background based upon image.
 //--------------------------------------------------------------------------------------------------
-Background.prototype.createBackgroundFromFile = function() {
+Background.prototype.createBackgroundFromFile = function(callBackFunction) {
+    'use strict';
+    var callBackPresent = (typeof(callBackFunction) !== "undefined");
     var imageCanvas = new ImageCanvas(this.document, this.mazeId, this.backgroundFile,
         MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.PROJECTIONPLANEHEIGHT);
     var that = this;
@@ -89,15 +92,20 @@ Background.prototype.createBackgroundFromFile = function() {
                     that.setPixel(col, row, red, green, blue);
                 }
             }
-        } else console.log(message);
+            if (callBackPresent) callBackFunction(true);    // tell caller we are all done
+        } else {
+            console.log(message);
+            if (callBackPresent) callBackFunction(false);    // tell caller we tried
+        }
     });
 };
 
 //--------------------------------------------------------------------------------------------------
 //  Creates a gradient background.
 //--------------------------------------------------------------------------------------------------
-Background.prototype.createGradientBackground = function() {
+Background.prototype.createGradientBackground = function(callBackFunction) {
     'use strict';
+    var callBackPresent = (typeof(callBackFunction) !== "undefined");
     var red = this.skyRed;
     var green = this.skyGreen;
     var blue = this.skyBlue;
@@ -126,6 +134,7 @@ Background.prototype.createGradientBackground = function() {
         green += this.groundGreenStep; green = green > 255 ? 255 : green; green = green < 0 ? 0 : green;
         blue += this.groundBlueStep; blue = blue > 255 ? 255 : blue; blue = blue < 0 ? 0 : blue;
     }
+    if (callBackPresent) callBackFunction(true);    // tell caller we are all done
 };
 
 //--------------------------------------------------------------------------------------------------

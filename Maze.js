@@ -116,13 +116,13 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 
 	var ay = 0;
 	var ax = 0.0;
-	var hitSide = WallHitItem.prototype.BOTTOM_SIDE_HIT;
+	var hitSide = WallHitItem.BOTTOM_SIDE_HIT;
 
 	// STEP ONE -- (the hardest one) find the coord of where the first horiz wall is hit
 
 	// ray is facing down
 	if (castArc > this.trig.ANGLE0 && castArc < this.trig.ANGLE180) {
-		// the following line is simply  ay = (py/64) * (64) + 64   where "p" is the
+        // the following line is simply  ay = (py/64) * (64) + 64   where "p" is the
 		// players position and "a" is the position of the first horiz line hit
 		// this is simply looking at the next horizontal line past the player
 		ay = ((this.playerY >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT) + MazeGlobals.TILE_SIZE;
@@ -139,7 +139,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 	// else, the ray is facing up
 	else {
 	    // if we do hit, it will be the top of the cube
-	    hitSide = WallHitItem.prototype.TOP_SIDE_HIT;
+	    hitSide = WallHitItem.TOP_SIDE_HIT;
 
 		// ay = (py/64) * (64)
 		// this is simply looking at the previous horizontal line just prior to the player
@@ -157,7 +157,7 @@ Maze.prototype.castRayForHorizHit = function(castArc) {
 		ay--;
 	}
 	var horizItemHit = new WallHitItem(WallHitItem.prototype.HORIZ_HIT, ay, ax, castArc);
-
+    horizItemHit.hitSide = hitSide;
 
 	// if horizontal ray
 	if (castArc == this.trig.ANGLE0 || castArc == this.trig.ANGLE180) {
@@ -234,7 +234,7 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 
 	var ax = 0;
 	var ay = 0.0;
-	var hitSide = WallHitItem.prototype.RIGHT_SIDE_HIT;
+	var hitSide = WallHitItem.RIGHT_SIDE_HIT;
 
 	if (castArc < this.trig.ANGLE90 || castArc > this.trig.ANGLE270) {
 		ax = ((this.playerX >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT) + MazeGlobals.TILE_SIZE;
@@ -242,13 +242,14 @@ Maze.prototype.castRayForVertHit = function(castArc) {
 		distToNextVerticalGrid = MazeGlobals.TILE_SIZE;
 	}
 	else {
-	    hitSide = WallHitItem.prototype.LEFT_SIDE_HIT;
+	    hitSide = WallHitItem.LEFT_SIDE_HIT;
 		ax = (this.playerX >> MazeGlobals.TILE_SIZE_SHIFT) << MazeGlobals.TILE_SIZE_SHIFT;
 		ay = this.playerY + ((ax - this.playerX) * this.trig.tanTable[castArc]);
 		distToNextVerticalGrid = -MazeGlobals.TILE_SIZE;
 		ax--;
 	}
 	var vertItemHit = new WallHitItem(WallHitItem.prototype.VERT_HIT, ax, ay, castArc);
+    vertItemHit.hitSide = hitSide;
 
 	if (castArc == this.trig.ANGLE90 || castArc == this.trig.ANGLE270) {
 		vertItemHit.distToItem = Number.MAX_VALUE;

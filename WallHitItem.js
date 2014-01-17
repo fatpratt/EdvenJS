@@ -8,6 +8,11 @@
 // Namespace: WallHitItem
 if (WallHitItem == null || typeof(WallHitItem) != "object") {var WallHitItem = new Object();}
 
+WallHitItem.TOP_SIDE_HIT = null;        // globally accessible and defined in constructor
+WallHitItem.RIGHT_SIDE_HIT = null;
+WallHitItem.BOTTOM_SIDE_HIT = null;
+WallHitItem.LEFT_SIDE_HIT = null;
+
 //------------------------------------------------------------------------------
 // constructor
 //------------------------------------------------------------------------------
@@ -17,15 +22,16 @@ WallHitItem = function (hitType, gridLine, intersection, castArc){
     this.gridLine = gridLine;         // int is okay here because it is always even multiple of 64
     this.intersection = intersection; // float here because it is usually not an a evenly rounded number
     this.castArc = castArc;           // just useful for debugging
+
+    WallHitItem.TOP_SIDE_HIT = 0;
+    WallHitItem.RIGHT_SIDE_HIT = 1;
+    WallHitItem.BOTTOM_SIDE_HIT = 2;
+    WallHitItem.LEFT_SIDE_HIT = 3;
+
 };
 
 WallHitItem.prototype.HORIZ_HIT = 0;        // hit type
 WallHitItem.prototype.VERT_HIT = 1;
-
-WallHitItem.prototype.TOP_SIDE_HIT  = 0;    // hit side
-WallHitItem.prototype.RIGHT_SIDE_HIT = 1;
-WallHitItem.prototype.BOTTOM_SIDE_HIT = 2;
-WallHitItem.prototype.LEFT_SIDE_HIT = 3;
 
                                      // gridline and intersection are the x, y positions of the hit
 WallHitItem.prototype.gridLine = 0;  // the position of the grid line which is hit by the ray

@@ -22,6 +22,8 @@ MazeLoader.background = null;
 MazeLoader.landscape = null;
 MazeLoader.ctx = null;
 
+var captureKey = false;
+
 // CallBack: called when delay for showing the opening credits is complete
 var openingCreditsDelayCompleteCallBack = function() {
     'use strict';
@@ -231,6 +233,15 @@ MazeLoader.prototype.init = function() {
        });
     });
 
+    // when an alpha num key (1-9, a-z) is hit, it could be a hyperspace request to jump ahead to a question
+    var alphaNumKeyHitBehavior = function(questionNum) {
+        if (captureKey) {
+            MazeLoader.maze.hyperspaceToQuestion(questionNum);
+            MazeLoader.maze.renderOneFrame();
+        }
+        captureKey = false;
+    };
+
     KeyboardController({
         37: function() {            // left
             MazeLoader.maze.rotateLeft();
@@ -247,7 +258,50 @@ MazeLoader.prototype.init = function() {
         40: function() {            // down
             MazeLoader.maze.moveBackward();
             MazeLoader.maze.renderOneFrame();
-        }
+        },
+        191: function() {        // '/' key hit ... capture next key
+            captureKey = true;
+            setTimeout(function(){
+                    captureKey = false
+                }, 1500);   // wait only for 1.5 seconds
+        },
+        49: function() { alphaNumKeyHitBehavior('1') },        // '1' key hit
+        50: function() { alphaNumKeyHitBehavior('2') },        // '2' key hit
+        51: function() { alphaNumKeyHitBehavior('3') },
+        52: function() { alphaNumKeyHitBehavior('4') },
+        53: function() { alphaNumKeyHitBehavior('5') },
+        54: function() { alphaNumKeyHitBehavior('6') },
+        55: function() { alphaNumKeyHitBehavior('7') },
+        56: function() { alphaNumKeyHitBehavior('8') },
+        57: function() { alphaNumKeyHitBehavior('9') },
+
+        65: function() { alphaNumKeyHitBehavior('a') },
+        66: function() { alphaNumKeyHitBehavior('b') },
+        67: function() { alphaNumKeyHitBehavior('c') },
+        68: function() { alphaNumKeyHitBehavior('d') },
+        69: function() { alphaNumKeyHitBehavior('e') },
+        70: function() { alphaNumKeyHitBehavior('f') },
+        71: function() { alphaNumKeyHitBehavior('g') },
+        72: function() { alphaNumKeyHitBehavior('h') },
+        73: function() { alphaNumKeyHitBehavior('i') },
+        74: function() { alphaNumKeyHitBehavior('j') },
+        75: function() { alphaNumKeyHitBehavior('k') },
+        76: function() { alphaNumKeyHitBehavior('l') },
+        77: function() { alphaNumKeyHitBehavior('m') },
+        78: function() { alphaNumKeyHitBehavior('n') },
+        79: function() { alphaNumKeyHitBehavior('o') },
+        80: function() { alphaNumKeyHitBehavior('p') },
+        81: function() { alphaNumKeyHitBehavior('q') },
+        82: function() { alphaNumKeyHitBehavior('r') },
+        83: function() { alphaNumKeyHitBehavior('s') },
+        84: function() { alphaNumKeyHitBehavior('t') },
+        85: function() { alphaNumKeyHitBehavior('u') },
+        86: function() { alphaNumKeyHitBehavior('v') },
+        87: function() { alphaNumKeyHitBehavior('w') },
+        88: function() { alphaNumKeyHitBehavior('x') },
+        89: function() { alphaNumKeyHitBehavior('y') },
+        90: function() { alphaNumKeyHitBehavior('z') }
+
     }, 100);
 };
 

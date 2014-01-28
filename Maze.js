@@ -554,6 +554,32 @@ Maze.prototype.moveBackward = function() {
 };
 
 //------------------------------------------------------------------------------
+// Moves player position to the specified question.
+//------------------------------------------------------------------------------
+Maze.prototype.hyperspaceToQuestion = function(curQuestionChar) {
+    var arialNumPos = this.questionPosData.getPositionFromQuestionNum(curQuestionChar);
+    if (arialNumPos == null) return;
+    var row = arialNumPos >> this.mapData.mapWidthShift;       // convert arialNumPos to a row / column
+    var col = arialNumPos % this.mapData.mapWidth;
+
+    // position so question is visible
+    if (this.playerArc >= this.trig.ANGLE315 && this.playerArc <= this.trig.ANGLE360) {
+        col -= 1.5;
+    } else if (this.playerArc >= this.trig.ANGLE0 && this.playerArc <= this.trig.ANGLE45) {
+        col -= 1.5;
+    } else if (this.playerArc > this.trig.ANGLE45 && this.playerArc <= this.trig.ANGLE135) {
+        row -= 1.5;
+    } else if (this.playerArc > this.trig.ANGLE135 && this.playerArc <= this.trig.ANGLE225) {
+        col += 1.5;
+    } else if (this.playerArc > this.trig.ANGLE225 && this.playerArc <= this.trig.ANGLE315) {
+        row += 1.5;
+    }
+
+    this.playerX = (col + 1) * MazeGlobals.TILE_SIZE;
+    this.playerY = (row + 1) * MazeGlobals.TILE_SIZE;
+};
+
+//------------------------------------------------------------------------------
 // Check position to see if we are in a trap zone, if so, go to specified
 // destination or perform the specified action.  Returns true if we are inside
 // a trap, otherwise returns false.

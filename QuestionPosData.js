@@ -269,6 +269,13 @@ QuestionPosData.prototype.getCanvasImage = function(ch) {
     return null;
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+// Tells caller the arial map position of the specified question.
+//----------------------------------------------------------------------------------------------------------------------
+QuestionPosData.prototype.getPositionFromQuestionNum = function(curQuestionChar) {
+    return this.questionToPosMap[curQuestionChar];
+};
+
 //------------------------------------------ Non-Prototype Functions -----------------------------------------------
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -334,3 +341,4 @@ QuestionPosData.isLineLengthGood = function(width)  {
     }
     return true;
 };
+

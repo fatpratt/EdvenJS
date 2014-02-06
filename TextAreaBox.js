@@ -26,7 +26,7 @@ TextAreaBox = function(context, backGroundClrStr, textClrStr, leftStartPoint, wi
 };
 
 TextAreaBox.prototype.TOP_MARGIN = 12;
-TextAreaBox.prototype.MARGIN = 1;
+TextAreaBox.prototype.MARGIN = 5;
 TextAreaBox.prototype.LINE_HEIGHT = 12;
 TextAreaBox.prototype.LINE_SEPARATOR_HEIGHT = 2;
 TextAreaBox.prototype.FONT_STYLE = "11px Arial,sans-serif";

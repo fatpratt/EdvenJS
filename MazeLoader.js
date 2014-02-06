@@ -202,7 +202,13 @@ MazeLoader.prototype.init = function() {
 
     MazeLoader.textAreaBox = new TextAreaBox(MazeLoader.ctx, "black", "#aaaaaa",
         MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.TEXTBOXWIDTH, MazeGlobals.TEXTBOXHEIGHT);
-    MazeLoader.textAreaBox.dumpText('test test test');
+    MazeLoader.textAreaBox.dumpText('Welcome to the EdVenture Maze emulator! Use this emulator\n' +
+        'to test out your maze before publishing and pushing it out to\n' +
+        'mobile devices.\n\n' +
+        'Use the arrow keys on your computer keyboard to navigate.\n\n' +
+        'Look for question marks (?) giving you clues as to which \n' +
+        'pathway (A, B, C, or D) is best. Good luck!'
+    );
 
     if (MazeLoader.ctx.createImageData == null) {
         MazeLoader.textAreaBox.dumpError('Please upgrade your browser. Sorry, your browser is out of date for this viewer to function properly.');

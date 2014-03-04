@@ -1,236 +1,89 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>Canvas Test</title>
-        <script type="text/javascript" src="EM.js"></script>
-        <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
+<head>
+    <meta charset="UTF-8" />
+    <title>Maze</title>
+    <script type="text/javascript" src="EM.js"></script>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
 
-        <script type="text/javascript">
-            var intervalId = null;
-            var maze = null;
+    <script type="text/javascript">
+        var intervalId = null;
 
-            function changeMaze() {
-                var canvasElements = document.getElementById('targetCanvasDiv');
-                while (canvasElements.hasChildNodes()) {
-                    canvasElements.removeChild(canvasElements.lastChild);
-                }
-                if (intervalId != null) window.clearInterval(intervalId);
-                intervalId = null;
-                maze = null;
-                init();
+        function changeMaze() {
+            var canvasElements = document.getElementById('targetCanvasDiv');
+            while (canvasElements.hasChildNodes()) {
+                canvasElements.removeChild(canvasElements.lastChild);
             }
-        </script>
-    </head>
+            if (intervalId != null) window.clearInterval(intervalId);
+            intervalId = null;
+            var mazeLoader = new MazeLoader();
+            mazeLoader.init();
+        }
+    </script>
+</head>
 
-    <body onload="init()">
-        <section>
-            <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/> <input type="button" value="Change" onclick="javascript:changeMaze();"></span>
-            <div id="targetCanvasDiv"></div>
-            <div>
-                <canvas id="canvas" width="640" height="200">
-                    This text is displayed if your browser does not support HTML5 Canvas.
-                </canvas>
-            </div>
+<body onload="changeMaze()">
+<section>
+    <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/> <input type="button" value="Change" onclick="javascript:changeMaze();"></span>
+    <div id="targetCanvasDiv"></div>
+    <div>
+        <canvas id="canvas" width="640" height="200">
+            This text is displayed if your browser does not support HTML5 Canvas.
+        </canvas>
+    </div>
 
 
-            <script type="text/javascript">
+    <script type="text/javascript">
 
-                var upArrowEvent = false;
-                var downArrowEvent = false;
-                var leftArrowEvent = false;
-                var rightArrowEvent = false;
-                var courtesyCnt = 0;
+        //--------------------------------------------------------------------------------------------------
+        // Add support for those browsers that don't support "forEach" (such as older internet explorer).
+        //--------------------------------------------------------------------------------------------------
+        (function () {
+            if (!Array.prototype.forEach) {
+                Array.prototype.forEach = function(fun /*, thisp*/) {
+                    var len = this.length;
+                    if (typeof fun != "function")
+                        throw new TypeError();
 
-                //--------------------------------------------------------------------------------------------------
-                // Add support for those browsers that don't support "forEach" (such as older internet explorer).
-                //--------------------------------------------------------------------------------------------------
-                (function () {
-                    if (!Array.prototype.forEach) {
-                        Array.prototype.forEach = function(fun /*, thisp*/) {
-                            var len = this.length;
-                            if (typeof fun != "function")
-                                throw new TypeError();
-
-                            var thisp = arguments[1];
-                            for (var i = 0; i < len; i++) {
-                                if (i in this)
-                                        fun.call(thisp, this[i], i, this);
-                            }
-                        };
+                    var thisp = arguments[1];
+                    for (var i = 0; i < len; i++) {
+                        if (i in this)
+                            fun.call(thisp, this[i], i, this);
                     }
-                }());
+                };
+            }
+        }());
 
-                //--------------------------------------------------------------------------------------------------
-                // For those browsers that don't support console.log() define a dummy version to prevent crashes.
-                //--------------------------------------------------------------------------------------------------
-                (function () {
-                    if (typeof console !== "object") {
-                        console = {log: function(){}};
+        //--------------------------------------------------------------------------------------------------
+        // Add "findFirst" support to arrays.
+        //--------------------------------------------------------------------------------------------------
+        (function () {
+            if (!Array.prototype.findFirst) {
+                Array.prototype.findFirst = function (predicateCallback) {
+                    if (typeof predicateCallback !== 'function') {
+                        return undefined;
                     }
-                }());
-
-                //--------------------------------------------------------------------------------------------------
-                // Creates and returns canvas.
-                //--------------------------------------------------------------------------------------------------
-                function createCanvas() {
-                    var targetDiv = document.getElementById("targetCanvasDiv");
-                    var canvas = document.createElement('canvas');
-                    canvas.setAttribute("width",  640);
-                    canvas.setAttribute("height", 200);
-                    targetDiv.appendChild(canvas);
-
-                    // older internet explorer support for canvas... must have excanvas.min.js present and referenced
-                    if (typeof(G_vmlCanvasManager) != 'undefined') {
-                        canvas = G_vmlCanvasManager.initElement(canvas);
+                    for (var i = 0; i < this.length; i++) {
+                        if (i in this && predicateCallback(this[i])) return this[i];
                     }
-                    return canvas;
-                }
+                    return undefined;
+                };
+            }
+        }());
 
-                //--------------------------------------------------------------------------------------------------
-                // Main entry point.
-                //--------------------------------------------------------------------------------------------------
-                function init() {
-                    var canvas = createCanvas();
-                    var ctx = canvas.getContext('2d');
+        //--------------------------------------------------------------------------------------------------
+        // For those browsers that don't support console.log() define a dummy version to prevent crashes.
+        //--------------------------------------------------------------------------------------------------
+        (function () {
+            if (typeof console !== "object") {
+                console = {log: function(){}};
+            }
+        }());
+    </script>
 
-                    var mazeIdTextFld = document.getElementById("mazeId");
-                    var mazeId = mazeIdTextFld.value;
+</section>
 
-                    var textAreaBox = new TextAreaBox(ctx, "black", "#aaaaaa",
-                        MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.TEXTBOXWIDTH, MazeGlobals.TEXTBOXHEIGHT);
-                    textAreaBox.dumpText('test test test');
-
-                    if (ctx.createImageData == null) {
-                        textAreaBox.dumpError('Please upgrade your browser. Sorry, your browser is out of date for this viewer to function properly.');
-                        return;
-                    }
-
-                    var mapData = new MapData(document, mazeId, textAreaBox);
-                    mapData.loadDataFile(function(statusGood, message) {
-                        if (statusGood) console.log('Maze.html: Map Data file successfully loaded.');
-                        else {
-                            textAreaBox.dumpError('error unable to load Map Data file: ' + message);
-                            return;
-                        }
-                        mapData.loadAssociatedImages(function(statusGood2, message2) {
-                            if (statusGood2) console.log('Maze.html: successfully loaded associated image files');
-                            else {
-                                textAreaBox.dumpError('error unable to load associated images: ' + message2);
-                                return;
-                            }
-                        });
-
-
-                        var mazeConfig = new MazeConfig(document, mazeId, textAreaBox, mapData.mapHeight, mapData.mapWidth);
-                        mazeConfig.loadConfigFile(function(){
-                            maze = new Maze(ctx, mapData, mazeConfig);
-                            maze.renderOneFrame();
-                            //window.addEventListener('keydown', doKeyDown, false);
-                            //window.addEventListener('keyup',   doKeyUp,   false);
-                        });
-
-
-
-                    });
-
-                    intervalId = window.setInterval(render, 30);
-                    window.addEventListener('keydown', doKeyDown, false);
-                    window.addEventListener('keyup',   doKeyUp,   false);
-
-                }
-
-                //--------------------------------------------------------------------------------------------------
-                // On key down event.
-                //--------------------------------------------------------------------------------------------------
-                function doKeyDown(evt) {
-                	if (maze == null) return;
-                    switch (evt.keyCode) {
-                        case 38: // Up arrow was pressed
-                        	upArrowEvent = true;
-                            break;
-                        case 40: // Down arrow was pressed
-                            downArrowEvent = true;
-                            break;
-                        case 37: // Left arrow was pressed
-                            leftArrowEvent = true;
-                            break;
-                        case 39: // Right arrow was pressed
-                            rightArrowEvent = true;
-                            break;
-                    }
-                }
-
-                //--------------------------------------------------------------------------------------------------
-                // On key up event.
-                //--------------------------------------------------------------------------------------------------
-                function doKeyUp(evt) {
-                	if (maze == null) return;
-                    switch (evt.keyCode) {
-                        case 38: // Up arrow was released
-                            upArrowEvent = false;
-                            break;
-                        case 40: // Down arrow was released
-                            downArrowEvent = false;
-                            break;
-                        case 37: // Left arrow was released
-                            leftArrowEvent = false;
-                            break;
-                        case 39: // Right arrow was released
-                            rightArrowEvent = false;
-                            break;
-                    }
-                }
-
-                //--------------------------------------------------------------------------------------------------
-                // Render a frame.
-                //--------------------------------------------------------------------------------------------------
-                function render() {
-                    if (maze == null) return;
-
-                    if (upArrowEvent) {
-                        maze.moveForward();
-                        maze.renderOneFrame();
-                        upArrowEvent = false;
-                        courtesyCnt = 0;
-                    }
-
-                    if (downArrowEvent) {
-                        maze.moveBackward();
-                        maze.renderOneFrame();
-                        downArrowEvent = false;
-                        courtesyCnt = 0;
-                    }
-
-                    if (leftArrowEvent) {
-                        maze.rotateLeft();
-                        maze.renderOneFrame();
-                        leftArrowEvent = false;
-                        courtesyCnt = 0;
-                    }
-
-                    if (rightArrowEvent) {
-                        maze.rotateRight();
-                        maze.renderOneFrame();
-                        rightArrowEvent = false;
-                        courtesyCnt = 0;
-                    }
-
-                    // every once in a while you need to do a courtesy render even if there are no events
-                    if (courtesyCnt == 15) {     // assumes this function is called on a regular interval
-                        maze.renderOneFrame();
-                        courtesyCnt = 0;
-                    }
-                    courtesyCnt++;
-                }
-
-
-            </script>
-
-
-
-        </section>
-    </body>
+</body>
 </html>
 
 

@@ -6,6 +6,27 @@
     <script type="text/javascript" src="EM.js"></script>
     <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
 
+    <style>
+        div#mobileOuterDiv {
+            position: relative;
+            top: 25px;
+            left: 40px;
+            width: 726px;
+            height: 528px;
+            border: 0px solid #000;
+            background-image: url("MobileDevice.png");
+        }
+        div#mobileInnerDiv {
+            position: absolute;
+            top: 75px;
+            left: 35px;
+            width: 640px;
+            height: 200px;
+            background-color: #666
+        }
+    </style>
+
+
     <script type="text/javascript">
         var intervalId = null;
 
@@ -16,69 +37,33 @@
             }
             if (intervalId != null) window.clearInterval(intervalId);
             intervalId = null;
-            var mazeLoader = new MazeLoader();
-            mazeLoader.init();
+
+            var mazeIdTextFld = document.getElementById("mazeId");
+            if (mazeIdTextFld == null || mazeIdTextFld.value == "") {
+                alert("Maze Id is missing!");
+            } else {
+                var mazeLoader = new MazeLoader(mazeIdTextFld.value);
+                mazeLoader.init();
+            }
         }
     </script>
 </head>
 
-<body onload="changeMaze()">
-<section>
-    <span>Id: <input id="mazeId" type="text" size="12" value="xtdubx3389"/> <input type="button" value="Change" onclick="javascript:changeMaze();"></span>
-    <div id="targetCanvasDiv"></div>
-    <div>
-        <canvas id="canvas" width="640" height="200">
-            This text is displayed if your browser does not support HTML5 Canvas.
-        </canvas>
+<body onload="changeMaze()">        <section>
+    <span>Id: <input id="mazeId" type="text" size="12" value="bynh26m43u"/> <input type="button" value="Change" onclick="javascript:changeMaze();"></span>
+    <div id="mobileOuterDiv">
+        <div id="mobileInnerDiv">
+            <div id="targetCanvasDiv"></div>
+            <div>
+                <canvas id="canvas" width="640" height="200">
+                    This text is displayed if your browser does not support HTML5 Canvas.
+                </canvas>
+            </div>
+        </div>
     </div>
-
 
     <script type="text/javascript">
 
-        //--------------------------------------------------------------------------------------------------
-        // Add support for those browsers that don't support "forEach" (such as older internet explorer).
-        //--------------------------------------------------------------------------------------------------
-        (function () {
-            if (!Array.prototype.forEach) {
-                Array.prototype.forEach = function(fun /*, thisp*/) {
-                    var len = this.length;
-                    if (typeof fun != "function")
-                        throw new TypeError();
-
-                    var thisp = arguments[1];
-                    for (var i = 0; i < len; i++) {
-                        if (i in this)
-                            fun.call(thisp, this[i], i, this);
-                    }
-                };
-            }
-        }());
-
-        //--------------------------------------------------------------------------------------------------
-        // Add "findFirst" support to arrays.
-        //--------------------------------------------------------------------------------------------------
-        (function () {
-            if (!Array.prototype.findFirst) {
-                Array.prototype.findFirst = function (predicateCallback) {
-                    if (typeof predicateCallback !== 'function') {
-                        return undefined;
-                    }
-                    for (var i = 0; i < this.length; i++) {
-                        if (i in this && predicateCallback(this[i])) return this[i];
-                    }
-                    return undefined;
-                };
-            }
-        }());
-
-        //--------------------------------------------------------------------------------------------------
-        // For those browsers that don't support console.log() define a dummy version to prevent crashes.
-        //--------------------------------------------------------------------------------------------------
-        (function () {
-            if (typeof console !== "object") {
-                console = {log: function(){}};
-            }
-        }());
     </script>
 
 </section>

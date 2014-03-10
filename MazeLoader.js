@@ -136,8 +136,9 @@ var loadDataFileCallBack = function(statusGood, message) {
 //----------------------------------------------------------------------------------------------------------------------
 // Constructor
 //----------------------------------------------------------------------------------------------------------------------
-MazeLoader = function() {
+MazeLoader = function(mazeId) {
     'use strict';
+    MazeLoader.mazeId = mazeId;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -196,9 +197,6 @@ MazeLoader.prototype.init = function() {
     'use strict';
     var canvas = this.createCanvas();
     MazeLoader.ctx = canvas.getContext('2d');
-
-    var mazeIdTextFld = document.getElementById("mazeId");
-    MazeLoader.mazeId = mazeIdTextFld.value;
 
     MazeLoader.textAreaBox = new TextAreaBox(MazeLoader.ctx, "black", "#aaaaaa",
         MazeGlobals.PROJECTIONPLANEWIDTH, MazeGlobals.TEXTBOXWIDTH, MazeGlobals.TEXTBOXHEIGHT);
@@ -311,5 +309,9 @@ MazeLoader.prototype.init = function() {
     }, 100);
 };
 
+// NOTE: the following has the effect of exporting code for the Google closure compiler for
+// advanced optimizations (temporarily commented out).
+//window['MazeLoader'] = MazeLoader;
+//MazeLoader.prototype['init'] = MazeLoader.prototype.init;
 
 

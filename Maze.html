@@ -18,12 +18,11 @@
         <script type="text/javascript" src="KeyboardController.js"></script>
         <script type="text/javascript" src="MapData.js"></script>
         <script type="text/javascript" src="PropData.js"></script>
-        <script type="text/javascript" src="MazeGlobals.js"></script>
+        <script type="text/javascript" src="WallHitItem.js"></script>
         <script type="text/javascript" src="Maze.js"></script>
         <script type="text/javascript" src="Overlay.js"></script>
         <script type="text/javascript" src="Landscape.js"></script>
         <script type="text/javascript" src="Background.js"></script>
-		<script type="text/javascript" src="WallHitItem.js"></script>
         <script type="text/javascript" src="PropHitItem.js"></script>
         <script type="text/javascript" src="Questions.js"></script>
         <script type="text/javascript" src="Question.js"></script>
@@ -63,8 +62,14 @@
                 }
                 if (intervalId != null) window.clearInterval(intervalId);
                 intervalId = null;
-                var mazeLoader = new MazeLoader();
-                mazeLoader.init();
+
+                var mazeIdTextFld = document.getElementById("mazeId");
+                if (mazeIdTextFld == null || mazeIdTextFld.value == "") {
+                    alert("Maze Id is missing!");
+                } else {
+                    var mazeLoader = new MazeLoader(mazeIdTextFld.value);
+                    mazeLoader.init();
+                }
             }
         </script>
     </head>

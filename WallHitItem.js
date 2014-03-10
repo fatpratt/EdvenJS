@@ -5,13 +5,21 @@
 // @author brianpratt
 //------------------------------------------------------------------------------
 
+var WallHitItemConsts = (function() {
+    'use strict';
+    return {
+        TOP_SIDE_HIT: 0,
+        RIGHT_SIDE_HIT: 1,
+        BOTTOM_SIDE_HIT: 2,
+        LEFT_SIDE_HIT: 3,
+
+        HORIZ_HIT: 0,
+        VERT_HIT: 1
+    }
+}());
+
 // Namespace: WallHitItem
 if (WallHitItem == null || typeof(WallHitItem) != "object") {var WallHitItem = new Object();}
-
-WallHitItem.TOP_SIDE_HIT = null;        // globally accessible and defined in constructor
-WallHitItem.RIGHT_SIDE_HIT = null;
-WallHitItem.BOTTOM_SIDE_HIT = null;
-WallHitItem.LEFT_SIDE_HIT = null;
 
 //------------------------------------------------------------------------------
 // constructor
@@ -22,16 +30,7 @@ WallHitItem = function (hitType, gridLine, intersection, castArc){
     this.gridLine = gridLine;         // int is okay here because it is always even multiple of 64
     this.intersection = intersection; // float here because it is usually not an a evenly rounded number
     this.castArc = castArc;           // just useful for debugging
-
-    WallHitItem.TOP_SIDE_HIT = 0;
-    WallHitItem.RIGHT_SIDE_HIT = 1;
-    WallHitItem.BOTTOM_SIDE_HIT = 2;
-    WallHitItem.LEFT_SIDE_HIT = 3;
-
 };
-
-WallHitItem.prototype.HORIZ_HIT = 0;        // hit type
-WallHitItem.prototype.VERT_HIT = 1;
 
                                      // gridline and intersection are the x, y positions of the hit
 WallHitItem.prototype.gridLine = 0;  // the position of the grid line which is hit by the ray
@@ -40,8 +39,8 @@ WallHitItem.prototype.gridLine = 0;  // the position of the grid line which is h
 WallHitItem.prototype.intersection = 0.0;   // intersection of ray on grid line
                                             // ...this is an x value for horiz grid and y for vert
 
-WallHitItem.prototype.hitType = this.HORIZ_HIT;      // horiz or vertical grid line hit
-WallHitItem.prototype.hitSide = this.TOP_SIDE_HIT;   // hit top, bottom, right or left side of cube (from arial perspective)
+WallHitItem.prototype.hitType = WallHitItemConsts.HORIZ_HIT;      // horiz or vertical grid line hit
+WallHitItem.prototype.hitSide = WallHitItemConsts.TOP_SIDE_HIT;   // hit top, bottom, right or left side of cube (from arial perspective)
 
 WallHitItem.prototype.offTheMap = false;          // true - this ray went off the map
 WallHitItem.prototype.distToItem = 0.0;           // distance from player to wall being hit
@@ -56,12 +55,12 @@ WallHitItem.prototype.castArc = 0;
 
 WallHitItem.prototype.isHorizHit = function() {
     'use strict';
-	return (this.hitType == this.HORIZ_HIT);
+	return (this.hitType == WallHitItemConsts.HORIZ_HIT);
 };
 
 WallHitItem.prototype.isVertHit = function() {
     'use strict';
-	return (this.hitType == this.VERT_HIT);
+	return (this.hitType == WallHitItemConsts.VERT_HIT);
 };
 
 //------------------------------------------------------------------------------
@@ -83,7 +82,7 @@ function determineClosestHit(horizItemHit, vertItemHit) {
 //------------------------------------------------------------------------------
 WallHitItem.prototype.calcAndSetMapPos = function(mapData) {
     'use strict';
-	if (this.hitType == this.HORIZ_HIT) { // round down to x position of intersection on small grid
+	if (this.hitType == WallHitItemConsts.HORIZ_HIT) { // round down to x position of intersection on small grid
 	    this.xGridIndex = ~~(this.intersection / MazeGlobals.TILE_SIZE);
 	    this.yGridIndex = (this.gridLine >> MazeGlobals.TILE_SIZE_SHIFT);
 	} else {

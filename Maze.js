@@ -62,7 +62,7 @@ Maze.prototype.playerArc = 0;   // player's current angle he/she is facing
 // players parameters
 Maze.prototype.playerDistanceToTheProjectionPlane = 277;
 Maze.prototype.playerHeight = 32;
-Maze.prototype.playerSpeed = 16;
+Maze.prototype.playerSpeed = 20;
 Maze.prototype.projectionPlaneYCenter = MazeGlobals.PROJECTIONPLANEHEIGHT / 2;
 
 Maze.prototype.propHitItems = [];

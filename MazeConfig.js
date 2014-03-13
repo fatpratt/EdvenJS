@@ -53,8 +53,12 @@ MazeConfig.prototype.loadConfigFile = function(callBackFunction) {
                 'Version found: ' + ver);
         }
 
-        that.numTraps = that.iniObj.General.NumTraps;
-        that.numDests = that.iniObj.General.NumDests;
+        var numTraps = that.iniObj.General.NumTraps;
+        var numDests = that.iniObj.General.NumDests;
+        numTraps = (numTraps == null ? 0 : numTraps);
+        numDests = (numDests == null ? 0 : numDests);
+        that.numTraps = parseInt(numTraps, 10);
+        that.numDests = parseInt(numDests, 10);
 
         if (that.numTraps <= 0) {
             that.textAreaBox.dumpError("Number of destinations ('NumDests') in MazeConfig.ini file " +
@@ -171,9 +175,9 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
         angle = 45;
     } else dest.useExistingAngle = false;
 
-    dest.xPos = (parseInt(xTile, 10) * MazeGlobals.TILE_SIZE) + parseInt(xTileOffset, 10);
-    dest.yPos = (parseInt(yTile, 10) * MazeGlobals.TILE_SIZE) + parseInt(yTileOffset, 10);
-    dest.angle = Trig.degreesToMazeAngleUnits(parseInt(angle, 10));
+    dest.xPos = (xTile * MazeGlobals.TILE_SIZE) + xTileOffset;
+    dest.yPos = (yTile * MazeGlobals.TILE_SIZE) + yTileOffset;
+    dest.angle = Trig.degreesToMazeAngleUnits(angle, 10);
 
     // ----- gather landscape information ------
 
@@ -214,20 +218,6 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
         var groundRedStep   = this.getValueCheckingRange(section, "GroundRedStep",    MISSING_VALUE, -10, 10, "");
         var groundGreenStep = this.getValueCheckingRange(section, "GroundGreenStep",  MISSING_VALUE, -10, 10, "");
         var groundBlueStep  = this.getValueCheckingRange(section, "GroundBlueStep",   MISSING_VALUE, -10, 10, "");
-
-        skyRed      = parseInt(skyRed,      10);
-        skyGreen    = parseInt(skyGreen,    10);
-        skyBlue     = parseInt(skyBlue,     10);
-        groundRed   = parseInt(groundRed,   10);
-        groundGreen = parseInt(groundGreen, 10);
-        groundBlue  = parseInt(groundBlue,  10);
-
-        skyRedStep      = parseInt(skyRedStep,      10);
-        skyGreenStep    = parseInt(skyGreenStep,    10);
-        skyBlueStep     = parseInt(skyBlueStep,     10);
-        groundRedStep   = parseInt(groundRedStep,   10);
-        groundGreenStep = parseInt(groundGreenStep, 10);
-        groundBlueStep  = parseInt(groundBlueStep,  10);
 
         if (skyRed == MISSING_VALUE || skyGreen == MISSING_VALUE || skyBlue == MISSING_VALUE
                 || groundRed == MISSING_VALUE     || groundGreen == MISSING_VALUE     || groundBlue == MISSING_VALUE
@@ -275,12 +265,17 @@ MazeConfig.prototype.getDest = function(num, mapWidth, mapHeight) {
 // Gets the specified value from the MazeConfig.ini file. If the value isn't found this routine will return the
 // specified default value.  This method allows you to specify a range and if the value read in
 // does not fall within that range then a message will appear. To suppress a message pass in a default value
-// that is itself out of range.
+// that is itself out of range.  The value returned from this routine is of type number.
 //----------------------------------------------------------------------------------------------------------------------
 MazeConfig.prototype.getValueCheckingRange = function(section, key, defaultVal, lowEnd, highEnd, additionalMsg) {
     'use strict';
     var value = this.iniObj[section][key];
-    if (value == null) value = defaultVal;
+    if (value == null) {
+        value = defaultVal;
+    } else {
+        value = parseInt(value, 10);
+    }
+
     if (value > highEnd || value < lowEnd) {
         if (value === defaultVal) return value;  // we don't need a message if default is out of range
         this.textAreaBox.dumpError(key + " in " + section + " of MazeConfig.ini "

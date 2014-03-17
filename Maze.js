@@ -617,8 +617,8 @@ Maze.prototype.checkTraps = function(x, y) {
         // sometimes maze designer wants to keep player's current angle after advancing
         if (!this.curDest.useExistingAngle) {
             this.playerArc = this.curDest.angle;
-            this.playerXDir = this.trig.cosTable[fPlayerArc];
-            this.playerYDir = this.trig.sinTable[fPlayerArc];
+            this.playerXDir = this.trig.cosTable[this.playerArc];
+            this.playerYDir = this.trig.sinTable[this.playerArc];
         }
     }
     return true;

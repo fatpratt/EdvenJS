@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //--------------------------------------------------------------------------------------------------
 // Used to define a cache of pixels which define the landscape image in the view.
 // @author brianpratt

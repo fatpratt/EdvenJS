@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //------------------------------------------------------------------------------
 // Maze - This is the main graphics component for the program.  The maze is
 // a series of pixels in an image data array that is copied to an HTML5

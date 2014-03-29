@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------
 // A hit item used to describe where a ray hits a prop.  To use an object of
 // this type, call the constructor, then call setPropHitItemData() to

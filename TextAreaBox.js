@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // The text area box is the graphical component that is used to display a questions and log messages.
 // This object can be used as a singleton through out the application calling methods to display text

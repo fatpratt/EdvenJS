@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // General math routines.
 // @author brianpratt

@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // Simple object to hold Question info.
 // @author brianpratt

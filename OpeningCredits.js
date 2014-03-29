@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //--------------------------------------------------------------------------------------------------
 // Helper class used to draw opening credits including the background image and text.
 //

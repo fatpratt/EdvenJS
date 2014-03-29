@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //--------------------------------------------------------------------------------------------------
 // Holds all general configuration information as established in the GeneralConfig.ini file.
 // Defines globals used throughout.

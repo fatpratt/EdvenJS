@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // This file defines pre-calculated trigonometry values for a set of select angles relevant to ray casting.
 // Also contained, herein are helpful trigonometric methods.

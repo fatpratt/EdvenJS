@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------
 // Represents information for when a ray hits a question item.  Question item hits are treated
 // just like PropItemHits with an additional piece of information describing what type of

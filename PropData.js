@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // Contains the data which defines the prop data in the maze.  Essentially this is a map  which represents an aerial
 // view of the where the props are placed in the maze.  PropData also contains a collection of images

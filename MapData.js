@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // Contains the data which defines the walls of the map.  Essentially this map represents an aerial
 // view of the maze showing which blocks are walls and which are open spaces.  MapData also contains

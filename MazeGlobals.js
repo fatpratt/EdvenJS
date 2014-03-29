@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //--------------------------------------------------------------------------------------------------
 // Defines globals used throughout.
 // @author brianpratt

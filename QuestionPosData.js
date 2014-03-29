@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // Contains the question position data for the maze.  Essentially this is a map which represents an aerial
 // view of the where the questions are placed in the maze.  QuestionPosData also contains a collection of images

@@ -1,3 +1,6 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
 
 //----------------------------------------------------------------------------------------------------------------------
 // Gets maze up and running.  So much of the maze loading relies on a series of asynchronous methods.  Therefore much

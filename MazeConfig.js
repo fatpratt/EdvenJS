@@ -1,3 +1,7 @@
+/**
+ * @license Copyright 2014 EdVentureMaze.com
+ */
+
 //----------------------------------------------------------------------------------------------------------------------
 // Holds all general configuration information as established in the MazeConfig.ini file which primarily contains
 // traps and destinations.
